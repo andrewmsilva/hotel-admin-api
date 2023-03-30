@@ -16,6 +16,8 @@ There are some prerequisites to run this project:
 $ yarn install
 # start database
 $ yarn database:up
+# create local env
+$ cp .env.example .env
 ```
 
 ## Running the app
