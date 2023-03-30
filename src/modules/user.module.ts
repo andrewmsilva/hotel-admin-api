@@ -1,9 +1,10 @@
 import { Module } from '@nestjs/common';
 import { MongooseModule } from '@nestjs/mongoose';
-import { UserController } from 'src/controllers/user/user.controller';
-import { UserProvider } from 'src/data/user/user.provider';
+import { UserController } from 'src/controllers/user.controller';
+import { UserDataSource } from 'src/data/user/user.datasource';
 import { UserModel, UserSchema } from 'src/data/user/user.schema';
 import { UserRepository } from 'src/repositories/user.repository';
+import { CreateUserUseCase } from 'src/usecases/create-user/create-user.usecase';
 
 @Module({
   imports: [
@@ -15,6 +16,6 @@ import { UserRepository } from 'src/repositories/user.repository';
     ]),
   ],
   controllers: [UserController],
-  providers: [UserProvider, UserRepository],
+  providers: [UserDataSource, UserRepository, CreateUserUseCase],
 })
 export class UserModule {}
