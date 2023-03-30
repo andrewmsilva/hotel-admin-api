@@ -1,8 +1,12 @@
 import { Injectable } from '@nestjs/common';
+import { UserDataSource } from 'src/data/user/user.datasource';
+import { User, UserProps } from 'src/entities/user.entity';
 
 @Injectable()
 export class UserRepository {
-  getHello(): string {
-    return 'Hello World!';
+  constructor(private userDataSource: UserDataSource) {}
+
+  async create(props: UserProps): Promise<User> {
+    return this.userDataSource.create(props);
   }
 }
