@@ -23,9 +23,4 @@ export class UserDataSource {
     }
     return mapUserModel(user);
   }
-
-  async findOne(): Promise<User> {
-    const user = await this.userModel.findOne().exec();
-    return mapUserModel(user);
-  }
 }
