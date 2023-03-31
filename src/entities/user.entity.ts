@@ -1,12 +1,3 @@
-export interface UserProps extends Omit<User, 'id'> {
-  password: string;
-}
-
-export interface UserCredentials {
-  email: string;
-  password: string;
-}
-
 export class User {
   readonly id: string;
 
@@ -20,4 +11,19 @@ export class User {
     this.lastName = props.lastName;
     this.email = props.email;
   }
+}
+
+export interface UserProps extends Omit<User, 'id'> {
+  password: string;
+}
+
+export interface UserCredentials {
+  email: string;
+  password: string;
+}
+
+export interface UserSessionPayload {
+  id: string;
+  firstName: string;
+  email: string;
 }

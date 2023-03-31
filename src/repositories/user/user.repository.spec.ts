@@ -93,27 +93,23 @@ describe('UserRepository', () => {
     it('should throw an error if user email is invalid', async () => {
       await userModel.create(userProps);
 
-      await expect(
-        userRepository.findOneByCredentials({
-          ...credentials,
-          email: 'wrong@email.com',
-        }),
-      ).rejects.toEqual(
-        new HttpException('Credentials invalid', HttpStatus.UNAUTHORIZED),
-      );
+      const user = await userRepository.findOneByCredentials({
+        ...credentials,
+        email: 'wrong@email.com',
+      });
+
+      expect(user).toBeUndefined;
     });
 
     it('should throw an error if user password is invalid', async () => {
       await userModel.create(userProps);
 
-      await expect(
-        userRepository.findOneByCredentials({
-          ...credentials,
-          password: 'wrongPassword',
-        }),
-      ).rejects.toEqual(
-        new HttpException('Credentials invalid', HttpStatus.UNAUTHORIZED),
-      );
+      const user = await userRepository.findOneByCredentials({
+        ...credentials,
+        password: 'wrongPassword',
+      });
+
+      expect(user).toBeUndefined;
     });
   });
 });

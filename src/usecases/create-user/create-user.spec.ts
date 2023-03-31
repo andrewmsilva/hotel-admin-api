@@ -4,6 +4,8 @@ import { User, UserProps } from 'src/entities/user.entity';
 import { CreateUserUseCase } from './create-user.usecase';
 import * as bcrypt from 'bcrypt';
 import { UserRepository } from 'src/repositories/user/user.repository';
+import { AuthorizationRepository } from 'src/repositories/authorization/authorization.repository';
+import { JwtModule } from '@nestjs/jwt';
 
 describe('CreateUserUseCase', () => {
   let createUserUseCase: CreateUserUseCase;
@@ -18,8 +20,10 @@ describe('CreateUserUseCase', () => {
 
   beforeEach(async () => {
     const testModule = await Test.createTestingModule({
+      imports: [JwtModule.register({})],
       providers: [
         CreateUserUseCase,
+        AuthorizationRepository,
         {
           provide: UserRepository,
           useValue: {
