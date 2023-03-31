@@ -1,0 +1,30 @@
+name: Tests
+
+on: [push, pull_request]
+
+jobs:
+  run:
+    runs-on: ubuntu-latest
+    
+    steps:
+    - name: Checkout
+      uses: actions/checkout@v3
+
+    - name: Use Node.js 19.x
+      uses: actions/setup-node@v3
+      with:
+        node-version: 19.x
+    
+    - name: Run install
+        uses: borales/actions-yarn@v4
+        with:
+          cmd: install # will run `yarn install` command
+    
+    - name: Start database
+      run: yarn database:up
+    
+    - name: Run unit tests
+      run: yarn test
+
+    - name: Run E2E tests
+      run: npm test:e2e
