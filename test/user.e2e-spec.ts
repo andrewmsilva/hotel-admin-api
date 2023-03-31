@@ -1,7 +1,6 @@
 import { Test, TestingModule } from '@nestjs/testing';
 import { INestApplication, ValidationPipe } from '@nestjs/common';
 import * as request from 'supertest';
-import * as bcrypt from 'bcrypt';
 import { AppModule } from 'src/app.module';
 import { isUUID } from 'class-validator';
 import { Model } from 'mongoose';
@@ -47,7 +46,6 @@ describe('UserController (e2e)', () => {
       const user = res.body;
 
       expect(isUUID(user.id)).toBeTruthy;
-      expect(bcrypt.compareSync(userProps.password, user.password));
       expect(user).toEqual({
         id: user.id,
         ...userProps,

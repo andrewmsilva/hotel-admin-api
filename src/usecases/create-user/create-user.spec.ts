@@ -23,7 +23,11 @@ describe('CreateUserUseCase', () => {
         {
           provide: UserRepository,
           useValue: {
-            create: (props: UserProps) => new User({ id: uuid, ...props }),
+            create: (props: UserProps) => {
+              expect(bcrypt.compareSync(userProps.password, props.password))
+                .toBeTruthy;
+              return new User({ id: uuid, ...props });
+            },
           },
         },
       ],
@@ -32,10 +36,14 @@ describe('CreateUserUseCase', () => {
     createUserUseCase = testModule.get<CreateUserUseCase>(CreateUserUseCase);
   });
 
-  it('should encrypt password and create a user', async () => {
+  it('should create a user', async () => {
     const user = await createUserUseCase.execute(userProps);
 
-    expect(bcrypt.compareSync(userProps.password, user.password)).toBeTruthy;
-    expect(user).toEqual({ ...userProps, id: uuid, password: user.password });
+    expect(user).toEqual({
+      id: uuid,
+      firstName: userProps.firstName,
+      lastName: userProps.lastName,
+      email: userProps.email,
+    });
   });
 });
