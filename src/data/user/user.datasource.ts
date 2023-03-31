@@ -4,6 +4,7 @@ import { Model } from 'mongoose';
 import { User, UserProps } from 'src/entities/user.entity';
 import { mapUserModel } from './user.mapper';
 import { UserModel } from './user.schema';
+import * as bcrypt from 'bcrypt';
 
 @Injectable()
 export class UserDataSource {
@@ -21,6 +22,19 @@ export class UserDataSource {
       }
       throw error;
     }
+    return mapUserModel(user);
+  }
+
+  async findOneByCredentials(email: string, password: string): Promise<User> {
+    const user = await this.userModel.findOne({ email });
+
+    const areCredentialsValid =
+      !!user && bcrypt.compareSync(password, user.password);
+
+    if (!areCredentialsValid) {
+      throw new HttpException('Credentials invalid', HttpStatus.UNAUTHORIZED);
+    }
+
     return mapUserModel(user);
   }
 }
