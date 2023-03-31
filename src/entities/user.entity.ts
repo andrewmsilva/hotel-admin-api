@@ -21,9 +21,3 @@ export interface UserCredentials {
   email: string;
   password: string;
 }
-
-export interface UserSessionPayload {
-  id: string;
-  firstName: string;
-  email: string;
-}

@@ -1,7 +1,7 @@
 import { Injectable } from '@nestjs/common';
 import { JwtService } from '@nestjs/jwt';
-import { UserSessionPayload } from 'src/entities/user.entity';
 import * as bcrypt from 'bcrypt';
+import { AccessTokenPayload } from 'src/entities/access-token.entity';
 
 @Injectable()
 export class AuthorizationRepository {
@@ -19,16 +19,16 @@ export class AuthorizationRepository {
     return bcrypt.compareSync(data, encryptedData);
   }
 
-  createJWT(payload: UserSessionPayload): string {
+  createJWT(payload: AccessTokenPayload): string {
     return this.jwtService.sign(payload, {
       secret: this.jwtSecret,
       expiresIn: this.jwtExpiration,
     });
   }
 
-  validateJWT(jwt: string): UserSessionPayload {
+  validateJWT(jwt: string): AccessTokenPayload {
     try {
-      return this.jwtService.verify<UserSessionPayload>(jwt, {
+      return this.jwtService.verify<AccessTokenPayload>(jwt, {
         secret: this.jwtSecret,
       });
     } catch (error) {
