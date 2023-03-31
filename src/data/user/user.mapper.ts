@@ -7,6 +7,5 @@ export function mapUserModel(userModel: UserModel): User {
     firstName: userModel.firstName,
     lastName: userModel.lastName,
     email: userModel.email,
-    password: userModel.password,
   });
 }

@@ -1,15 +1,18 @@
-export type UserProps = Omit<User, 'id'>;
+export interface UserProps extends Omit<User, 'id'> {
+  password: string;
+}
 
 export class User {
   readonly id: string;
 
   firstName: string;
   lastName: string;
-
   email: string;
-  password: string;
 
   constructor(props: User) {
-    Object.assign(this, props);
+    this.id = props.id;
+    this.firstName = props.firstName;
+    this.lastName = props.lastName;
+    this.email = props.email;
   }
 }

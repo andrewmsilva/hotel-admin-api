@@ -50,7 +50,12 @@ describe('UserDataSource', () => {
 
       expect(user.constructor.name).toBe(User.name);
       expect(isUUID(user.id)).toBeTruthy;
-      expect(user).toEqual({ id: user.id, ...userProps });
+      expect(user).toEqual({
+        id: user.id,
+        firstName: userProps.firstName,
+        lastName: userProps.lastName,
+        email: userProps.email,
+      });
     });
 
     it('should throw an error if user email is already taken', async () => {
