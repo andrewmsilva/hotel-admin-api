@@ -7,7 +7,7 @@ import { UserModel } from './user.schema';
 import * as bcrypt from 'bcrypt';
 
 @Injectable()
-export class UserDataSource {
+export class UserRepository {
   constructor(
     @InjectModel(UserModel.name) private userModel: Model<UserModel>,
   ) {}
@@ -31,10 +31,8 @@ export class UserDataSource {
     const areCredentialsValid =
       !!user && bcrypt.compareSync(credentials.password, user.password);
 
-    if (!areCredentialsValid) {
-      throw new HttpException('Credentials invalid', HttpStatus.UNAUTHORIZED);
+    if (areCredentialsValid) {
+      return mapUserModel(user);
     }
-
-    return mapUserModel(user);
   }
 }

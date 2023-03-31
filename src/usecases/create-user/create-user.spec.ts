@@ -1,9 +1,9 @@
 import { Test } from '@nestjs/testing';
 import { randomUUID } from 'crypto';
 import { User, UserProps } from 'src/entities/user.entity';
-import { UserRepository } from 'src/repositories/user.repository';
 import { CreateUserUseCase } from './create-user.usecase';
 import * as bcrypt from 'bcrypt';
+import { UserRepository } from 'src/repositories/user/user.repository';
 
 describe('CreateUserUseCase', () => {
   let createUserUseCase: CreateUserUseCase;

@@ -4,12 +4,12 @@ import * as request from 'supertest';
 import { AppModule } from 'src/app.module';
 import { isUUID } from 'class-validator';
 import { Model } from 'mongoose';
-import { UserModel } from 'src/data/user/user.schema';
-import { UserDataSource } from 'src/data/user/user.datasource';
+import { UserRepository } from 'src/repositories/user/user.repository';
+import { UserModel } from 'src/repositories/user/user.schema';
 
 describe('UserController (e2e)', () => {
   let app: INestApplication;
-  let userDataSource: UserDataSource;
+  let userRepository: UserRepository;
   let userModel: Model<UserModel>;
 
   const userProps = {
@@ -28,8 +28,8 @@ describe('UserController (e2e)', () => {
     app.useGlobalPipes(new ValidationPipe());
     await app.init();
 
-    userDataSource = app.get<UserDataSource>(UserDataSource);
-    userModel = (userDataSource as any).userModel;
+    userRepository = app.get<UserRepository>(UserRepository);
+    userModel = (userRepository as any).userModel;
   });
 
   afterEach(async () => {

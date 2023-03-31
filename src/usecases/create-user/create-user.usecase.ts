@@ -1,8 +1,8 @@
 import { Injectable } from '@nestjs/common';
 import { User } from 'src/entities/user.entity';
-import { UserRepository } from 'src/repositories/user.repository';
 import { CreateUserDTO } from './create-user.dto';
 import * as bcrypt from 'bcrypt';
+import { UserRepository } from 'src/repositories/user/user.repository';
 
 const SALT_ROUNDS = 10;
 
