@@ -1,6 +1,6 @@
 import { Injectable } from '@nestjs/common';
 import { UserDataSource } from 'src/data/user/user.datasource';
-import { User, UserProps } from 'src/entities/user.entity';
+import { User, UserCredentials, UserProps } from 'src/entities/user.entity';
 
 @Injectable()
 export class UserRepository {
@@ -8,5 +8,9 @@ export class UserRepository {
 
   async create(props: UserProps): Promise<User> {
     return this.userDataSource.create(props);
+  }
+
+  async findOneByCredentials(credentials: UserCredentials): Promise<User> {
+    return this.userDataSource.findOneByCredentials(credentials);
   }
 }

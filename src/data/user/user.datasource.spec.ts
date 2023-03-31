@@ -1,5 +1,5 @@
 import { Test } from '@nestjs/testing';
-import { User, UserProps } from 'src/entities/user.entity';
+import { User, UserCredentials, UserProps } from 'src/entities/user.entity';
 import { UserDataSource } from './user.datasource';
 import { MongooseModule } from '@nestjs/mongoose';
 import { UserModel, UserSchema } from './user.schema';
@@ -70,13 +70,15 @@ describe('UserDataSource', () => {
   });
 
   describe('findOneByCredentials', () => {
+    const credentials: UserCredentials = {
+      email: userProps.email,
+      password,
+    };
+
     it('should find user with valid credentials', async () => {
       await userModel.create(userProps);
 
-      const user = await userDataSource.findOneByCredentials(
-        userProps.email,
-        password,
-      );
+      const user = await userDataSource.findOneByCredentials(credentials);
 
       expect(user.constructor.name).toBe(User.name);
       expect(isUUID(user.id)).toBeTruthy;
@@ -92,7 +94,10 @@ describe('UserDataSource', () => {
       await userModel.create(userProps);
 
       await expect(
-        userDataSource.findOneByCredentials('wrong@email.com', password),
+        userDataSource.findOneByCredentials({
+          ...credentials,
+          email: 'wrong@email.com',
+        }),
       ).rejects.toEqual(
         new HttpException('Credentials invalid', HttpStatus.UNAUTHORIZED),
       );
@@ -102,7 +107,10 @@ describe('UserDataSource', () => {
       await userModel.create(userProps);
 
       await expect(
-        userDataSource.findOneByCredentials(userProps.email, 'wrongpassword'),
+        userDataSource.findOneByCredentials({
+          ...credentials,
+          password: 'wrongPassword',
+        }),
       ).rejects.toEqual(
         new HttpException('Credentials invalid', HttpStatus.UNAUTHORIZED),
       );
