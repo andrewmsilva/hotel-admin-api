@@ -1,5 +1,5 @@
 import { Test } from '@nestjs/testing';
-import { User, UserCredentials, UserProps } from 'src/entities/user.entity';
+import { User, UserProps } from 'src/entities/user.entity';
 import { UserRepository } from './user.repository';
 import { MongooseModule } from '@nestjs/mongoose';
 import { UserModel, UserSchema } from './user.schema';
@@ -72,17 +72,14 @@ describe('UserRepository', () => {
     });
   });
 
-  describe('findOneByCredentials', () => {
-    const credentials: UserCredentials = {
-      email: userProps.email,
-      password,
-    };
-
+  describe('findOneByEmailWithPassword', () => {
     it('should find user with valid credentials', async () => {
       await userModel.create(userProps);
 
-      const user = await userRepository.findOneByCredentials(credentials);
+      const [user, encryptedPassword] =
+        await userRepository.findOneByEmailWithPassword(userProps.email);
 
+      expect(encryptedPassword).toBe(userProps.password);
       expect(user.constructor.name).toBe(User.name);
       expect(isUUID(user.id)).toBeTruthy;
       expect(user).toEqual({
@@ -96,21 +93,9 @@ describe('UserRepository', () => {
     it('should throw an error if user email is invalid', async () => {
       await userModel.create(userProps);
 
-      const user = await userRepository.findOneByCredentials({
-        ...credentials,
-        email: 'wrong@email.com',
-      });
-
-      expect(user).toBeUndefined;
-    });
-
-    it('should throw an error if user password is invalid', async () => {
-      await userModel.create(userProps);
-
-      const user = await userRepository.findOneByCredentials({
-        ...credentials,
-        password: 'wrongPassword',
-      });
+      const user = await userRepository.findOneByEmailWithPassword(
+        'wrong@email.com',
+      );
 
       expect(user).toBeUndefined;
     });

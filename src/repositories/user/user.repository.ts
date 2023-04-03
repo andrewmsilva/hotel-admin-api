@@ -1,8 +1,7 @@
 import { HttpException, HttpStatus, Injectable } from '@nestjs/common';
 import { InjectModel } from '@nestjs/mongoose';
 import { Model } from 'mongoose';
-import { User, UserCredentials, UserProps } from 'src/entities/user.entity';
-import { AuthorizationRepository } from '../authorization/authorization.repository';
+import { User, UserProps } from 'src/entities/user.entity';
 import { mapUserModel } from './user.mapper';
 import { UserModel } from './user.schema';
 
@@ -10,7 +9,6 @@ import { UserModel } from './user.schema';
 export class UserRepository {
   constructor(
     @InjectModel(UserModel.name) private userModel: Model<UserModel>,
-    private authorizationRepository: AuthorizationRepository,
   ) {}
 
   async create(userProps: UserProps): Promise<User> {
@@ -26,18 +24,11 @@ export class UserRepository {
     return mapUserModel(user);
   }
 
-  async findOneByCredentials(credentials: UserCredentials): Promise<User> {
-    const user = await this.userModel.findOne({ email: credentials.email });
+  async findOneByEmailWithPassword(email: string): Promise<[User, string]> {
+    const user = await this.userModel.findOne({ email });
 
-    const areCredentialsValid =
-      !!user &&
-      this.authorizationRepository.compareEncryption(
-        credentials.password,
-        user.password,
-      );
-
-    if (areCredentialsValid) {
-      return mapUserModel(user);
+    if (user) {
+      return [mapUserModel(user), user.password];
     }
   }
 }
