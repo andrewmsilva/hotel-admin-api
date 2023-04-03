@@ -63,24 +63,24 @@ describe('SignInUserUseCase', () => {
     expect(isJWT(result.accessToken)).toBeTruthy;
   });
 
-  it('should throw error if email is wrong', async () => {
+  it('should throw error if email is incorrect', async () => {
     repositoryResult = null;
 
     await expect(
       signInUserUseCase.execute({
         ...credentials,
-        email: 'wrong@gmail.com',
+        email: 'incorrect@gmail.com',
       }),
     ).rejects.toThrow(
       new HttpException('Invalid credentials', HttpStatus.UNAUTHORIZED),
     );
   });
 
-  it('should throw error if password is wrong', async () => {
+  it('should throw error if password is incorrect', async () => {
     await expect(
       signInUserUseCase.execute({
         ...credentials,
-        password: 'wrongpassword',
+        password: 'incorrectpassword',
       }),
     ).rejects.toThrow(
       new HttpException('Invalid credentials', HttpStatus.UNAUTHORIZED),

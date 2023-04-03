@@ -90,11 +90,11 @@ describe('UserRepository', () => {
       });
     });
 
-    it('should throw an error if user email is invalid', async () => {
+    it('should throw an error if user email is incorrect', async () => {
       await userModel.create(userProps);
 
       const user = await userRepository.findOneByEmailWithPassword(
-        'wrong@email.com',
+        'incorrect@email.com',
       );
 
       expect(user).toBeUndefined;

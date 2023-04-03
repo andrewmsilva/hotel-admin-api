@@ -1,15 +1,18 @@
 import { Test, TestingModule } from '@nestjs/testing';
-import { INestApplication, ValidationPipe } from '@nestjs/common';
+import { HttpStatus, INestApplication, ValidationPipe } from '@nestjs/common';
 import * as request from 'supertest';
 import { AppModule } from 'src/app.module';
-import { isUUID } from 'class-validator';
+import { isJWT, isUUID } from 'class-validator';
 import { Model } from 'mongoose';
 import { UserRepository } from 'src/repositories/user/user.repository';
 import { UserModel } from 'src/repositories/user/user.schema';
+import { AuthorizationRepository } from 'src/repositories/authorization/authorization.repository';
+import { AccessToken } from 'src/entities/access-token.entity';
 
 describe('UserController (e2e)', () => {
   let app: INestApplication;
   let userRepository: UserRepository;
+  let authorizationRepository: AuthorizationRepository;
   let userModel: Model<UserModel>;
 
   const userProps = {
@@ -28,6 +31,9 @@ describe('UserController (e2e)', () => {
     app.useGlobalPipes(new ValidationPipe());
     await app.init();
 
+    authorizationRepository = app.get<AuthorizationRepository>(
+      AuthorizationRepository,
+    );
     userRepository = app.get<UserRepository>(UserRepository);
     userModel = (userRepository as any).userModel;
   });
@@ -41,7 +47,7 @@ describe('UserController (e2e)', () => {
       const res = await request(app.getHttpServer())
         .post('/user')
         .send(userProps)
-        .expect(201);
+        .expect(HttpStatus.CREATED);
 
       const user = res.body;
 
@@ -58,17 +64,20 @@ describe('UserController (e2e)', () => {
       await request(app.getHttpServer())
         .post('/user')
         .send(userProps)
-        .expect(409)
-        .expect({ statusCode: 409, message: 'User already exists' });
+        .expect(HttpStatus.CONFLICT)
+        .expect({
+          statusCode: HttpStatus.CONFLICT,
+          message: 'User already exists',
+        });
     });
 
     it('should throw validation error if firstName is empty', async () => {
       await request(app.getHttpServer())
         .post('/user')
         .send({ ...userProps, firstName: '' })
-        .expect(400)
+        .expect(HttpStatus.BAD_REQUEST)
         .expect({
-          statusCode: 400,
+          statusCode: HttpStatus.BAD_REQUEST,
           message: ['firstName should not be empty'],
           error: 'Bad Request',
         });
@@ -78,9 +87,9 @@ describe('UserController (e2e)', () => {
       await request(app.getHttpServer())
         .post('/user')
         .send({ ...userProps, lastName: '' })
-        .expect(400)
+        .expect(HttpStatus.BAD_REQUEST)
         .expect({
-          statusCode: 400,
+          statusCode: HttpStatus.BAD_REQUEST,
           message: ['lastName should not be empty'],
           error: 'Bad Request',
         });
@@ -90,9 +99,9 @@ describe('UserController (e2e)', () => {
       await request(app.getHttpServer())
         .post('/user')
         .send({ ...userProps, email: 'test@test' })
-        .expect(400)
+        .expect(HttpStatus.BAD_REQUEST)
         .expect({
-          statusCode: 400,
+          statusCode: HttpStatus.BAD_REQUEST,
           message: ['email must be an email'],
           error: 'Bad Request',
         });
@@ -102,11 +111,58 @@ describe('UserController (e2e)', () => {
       await request(app.getHttpServer())
         .post('/user')
         .send({ ...userProps, password: 'Strong?' })
-        .expect(400)
+        .expect(HttpStatus.BAD_REQUEST)
         .expect({
-          statusCode: 400,
+          statusCode: HttpStatus.BAD_REQUEST,
           message: ['password is not strong enough'],
           error: 'Bad Request',
+        });
+    });
+  });
+
+  describe('/user/sign-in (POST)', () => {
+    const credentials = {
+      email: userProps.email,
+      password: userProps.password,
+    };
+
+    it('should sign in', async () => {
+      const encryptedPassword = authorizationRepository.encrypt(
+        userProps.password,
+      );
+      await userModel.create({ ...userProps, password: encryptedPassword });
+
+      const res = await request(app.getHttpServer())
+        .post('/user/sign-in')
+        .send(credentials)
+        .expect(HttpStatus.OK);
+
+      const { accessToken }: AccessToken = res.body;
+
+      expect(isJWT(accessToken)).toBeTruthy;
+    });
+
+    it('should throw unauthorized error if user email incorrect', async () => {
+      await userModel.create(userProps);
+      await request(app.getHttpServer())
+        .post('/user/sign-in')
+        .send({ ...credentials, email: 'incorrect@gmail.com' })
+        .expect(HttpStatus.UNAUTHORIZED)
+        .expect({
+          statusCode: HttpStatus.UNAUTHORIZED,
+          message: 'Invalid credentials',
+        });
+    });
+
+    it('should throw unauthorized error if user password incorrect', async () => {
+      await userModel.create(userProps);
+      await request(app.getHttpServer())
+        .post('/user/sign-in')
+        .send({ ...credentials, password: 'incorrectpassword' })
+        .expect(HttpStatus.UNAUTHORIZED)
+        .expect({
+          statusCode: HttpStatus.UNAUTHORIZED,
+          message: 'Invalid credentials',
         });
     });
   });
