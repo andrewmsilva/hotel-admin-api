@@ -21,6 +21,7 @@ export class Room {
 
   constructor(props: Room) {
     this.id = props.id;
+    this.hotel = props.hotel;
     this.name = props.name;
     this.identifier = props.identifier;
     this.status = props.status;
@@ -29,3 +30,5 @@ export class Room {
     this.priceCents = props.priceCents;
   }
 }
+
+export type RoomProps = Omit<Room, 'id'>;

@@ -1,13 +1,13 @@
 import { Hotel } from 'src/entities/hotel.entity';
 import { HotelModel } from './hotel.schema';
 
-export function mapHotelModel(guestModel: HotelModel): Hotel {
+export function mapHotelModel(roomModel: HotelModel): Hotel {
   return new Hotel({
-    id: guestModel._id,
-    name: guestModel.name,
-    stars: guestModel.stars,
-    email: guestModel.email,
-    phone: guestModel.phone,
-    address: guestModel.address,
+    id: roomModel._id,
+    name: roomModel.name,
+    stars: roomModel.stars,
+    email: roomModel.email,
+    phone: roomModel.phone,
+    address: roomModel.address,
   });
 }

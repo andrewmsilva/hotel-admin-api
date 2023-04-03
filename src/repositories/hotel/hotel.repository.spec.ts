@@ -27,10 +27,7 @@ describe('HotelRepository', () => {
           dbName: process.env.DATABASE_NAME,
         }),
         MongooseModule.forFeature([
-          {
-            name: HotelModel.name,
-            schema: HotelSchema,
-          },
+          { name: HotelModel.name, schema: HotelSchema },
         ]),
       ],
       providers: [HotelRepository],

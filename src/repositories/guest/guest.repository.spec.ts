@@ -28,10 +28,7 @@ describe('GuestRepository', () => {
           dbName: process.env.DATABASE_NAME,
         }),
         MongooseModule.forFeature([
-          {
-            name: GuestModel.name,
-            schema: GuestSchema,
-          },
+          { name: GuestModel.name, schema: GuestSchema },
         ]),
       ],
       providers: [GuestRepository],
