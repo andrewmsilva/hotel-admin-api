@@ -1,17 +1,20 @@
 import { Injectable } from '@nestjs/common';
 import { User } from 'src/entities/user.entity';
-import { UserRepository } from 'src/repositories/user.repository';
 import { CreateUserDTO } from './create-user.dto';
-import * as bcrypt from 'bcrypt';
-
-const SALT_ROUNDS = 10;
+import { UserRepository } from 'src/repositories/user/user.repository';
+import { AuthorizationRepository } from 'src/repositories/authorization/authorization.repository';
 
 @Injectable()
 export class CreateUserUseCase {
-  constructor(private userRepository: UserRepository) {}
+  constructor(
+    private userRepository: UserRepository,
+    private authorizationRepository: AuthorizationRepository,
+  ) {}
 
   async execute(props: CreateUserDTO): Promise<User> {
-    const encryptedPassword = bcrypt.hashSync(props.password, SALT_ROUNDS);
+    const encryptedPassword = this.authorizationRepository.encrypt(
+      props.password,
+    );
 
     return this.userRepository.create({
       ...props,

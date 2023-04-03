@@ -6,7 +6,7 @@ import { mapUserModel } from './user.mapper';
 import { UserModel } from './user.schema';
 
 @Injectable()
-export class UserDataSource {
+export class UserRepository {
   constructor(
     @InjectModel(UserModel.name) private userModel: Model<UserModel>,
   ) {}
@@ -22,5 +22,13 @@ export class UserDataSource {
       throw error;
     }
     return mapUserModel(user);
+  }
+
+  async findOneByEmailWithPassword(email: string): Promise<[User, string]> {
+    const user = await this.userModel.findOne({ email });
+
+    if (user) {
+      return [mapUserModel(user), user.password];
+    }
   }
 }
