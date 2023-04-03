@@ -14,6 +14,12 @@ export class HotelModel implements Omit<Hotel, 'id'> {
   stars: number;
 
   @Prop({ required: true })
+  email: string;
+
+  @Prop({ required: true })
+  phone: string;
+
+  @Prop({ required: true })
   address: string;
 }
 
