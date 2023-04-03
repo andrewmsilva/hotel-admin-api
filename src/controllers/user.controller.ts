@@ -1,6 +1,14 @@
-import { Controller, Post, Body, HttpCode, HttpStatus } from '@nestjs/common';
+import {
+  Controller,
+  Post,
+  Body,
+  HttpCode,
+  HttpStatus,
+  UseGuards,
+} from '@nestjs/common';
 import { AccessToken } from 'src/entities/access-token.entity';
 import { User } from 'src/entities/user.entity';
+import { AuthorizationGuard } from 'src/guards/authorization.guard';
 import { CreateUserDTO } from 'src/usecases/create-user/create-user.dto';
 import { CreateUserUseCase } from 'src/usecases/create-user/create-user.usecase';
 import { SignInUserDTO } from 'src/usecases/sign-in-user/sign-in-user.dto.user';
@@ -13,6 +21,7 @@ export class UserController {
     private readonly signInUserUseCase: SignInUserUseCase,
   ) {}
 
+  @UseGuards(AuthorizationGuard)
   @Post()
   @HttpCode(HttpStatus.CREATED)
   createUser(@Body() userProps: CreateUserDTO): Promise<User> {
