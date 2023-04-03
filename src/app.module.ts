@@ -2,6 +2,7 @@ import { Module } from '@nestjs/common';
 import { MongooseModule } from '@nestjs/mongoose';
 import { ConfigModule } from '@nestjs/config';
 import { UserModule } from './modules/user.module';
+import { GuestModule } from './modules/guest.module';
 
 const ENV = process.env.NODE_ENV;
 
@@ -14,6 +15,7 @@ const ENV = process.env.NODE_ENV;
       dbName: process.env.DATABASE_NAME,
     }),
     UserModule,
+    GuestModule,
   ],
 })
 export class AppModule {}
