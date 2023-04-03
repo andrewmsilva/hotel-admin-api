@@ -1,9 +1,10 @@
-import { HttpException, HttpStatus } from '@nestjs/common';
+import { HttpException, HttpStatus, Injectable } from '@nestjs/common';
 import { AccessToken } from 'src/entities/access-token.entity';
 import { AuthorizationRepository } from 'src/repositories/authorization/authorization.repository';
 import { UserRepository } from 'src/repositories/user/user.repository';
 import { SignInUserDTO } from './sign-in-user.dto.user';
 
+@Injectable()
 export class SignInUserUseCase {
   constructor(
     private userRepository: UserRepository,
@@ -11,14 +12,26 @@ export class SignInUserUseCase {
   ) {}
 
   async execute(credentials: SignInUserDTO): Promise<AccessToken> {
-    const user = await this.userRepository.findOneByCredentials(credentials);
+    const userWithPassword =
+      await this.userRepository.findOneByEmailWithPassword(credentials.email);
 
-    if (!user) {
-      throw new HttpException('Credentials invalid', HttpStatus.UNAUTHORIZED);
+    if (userWithPassword) {
+      const [user, encryptedPassword] = userWithPassword;
+      const isPasswordMatching = this.authorizationRepository.compareEncryption(
+        credentials.password,
+        encryptedPassword,
+      );
+
+      if (isPasswordMatching) {
+        const accessToken = this.authorizationRepository.createJWT({
+          id: user.id,
+          firstName: user.firstName,
+          email: user.email,
+        });
+        return { accessToken };
+      }
     }
 
-    const accessToken = this.authorizationRepository.createJWT(user);
-
-    return { accessToken };
+    throw new HttpException('Invalid credentials', HttpStatus.UNAUTHORIZED);
   }
 }
