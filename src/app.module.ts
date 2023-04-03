@@ -4,6 +4,7 @@ import { ConfigModule } from '@nestjs/config';
 import { UserModule } from './modules/user.module';
 import { GuestModule } from './modules/guest.module';
 import { HotelModule } from './modules/hotel.module';
+import { RoomModule } from './modules/room.module';
 
 const ENV = process.env.NODE_ENV;
 
@@ -18,6 +19,7 @@ const ENV = process.env.NODE_ENV;
     UserModule,
     GuestModule,
     HotelModule,
+    RoomModule,
   ],
 })
 export class AppModule {}
