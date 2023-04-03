@@ -1,5 +1,6 @@
 import { Module } from '@nestjs/common';
 import { MongooseModule } from '@nestjs/mongoose';
+import { RoomRepository } from 'src/repositories/room/room.repository';
 import { RoomModel, RoomSchema } from 'src/repositories/room/room.schema';
 
 @Module({
@@ -12,6 +13,6 @@ import { RoomModel, RoomSchema } from 'src/repositories/room/room.schema';
     ]),
   ],
   controllers: [],
-  providers: [],
+  providers: [RoomRepository],
 })
 export class RoomModule {}
