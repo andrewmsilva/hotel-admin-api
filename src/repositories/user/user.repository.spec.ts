@@ -8,7 +8,6 @@ import { isUUID } from 'class-validator';
 import { Model } from 'mongoose';
 import { HttpException, HttpStatus } from '@nestjs/common';
 import * as bcrypt from 'bcrypt';
-import { AuthorizationRepository } from '../authorization/authorization.repository';
 import { JwtModule } from '@nestjs/jwt';
 
 describe('UserRepository', () => {
@@ -38,7 +37,7 @@ describe('UserRepository', () => {
         ]),
         JwtModule.register({}),
       ],
-      providers: [AuthorizationRepository, UserRepository],
+      providers: [UserRepository],
     }).compile();
 
     userRepository = testModule.get<UserRepository>(UserRepository);
