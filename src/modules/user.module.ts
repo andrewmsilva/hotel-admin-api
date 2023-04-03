@@ -5,14 +5,12 @@ import { UserModel, UserSchema } from 'src/repositories/user/user.schema';
 import { CreateUserUseCase } from 'src/usecases/create-user/create-user.usecase';
 import { JwtModule } from '@nestjs/jwt';
 import { UserRepository } from 'src/repositories/user/user.repository';
+import { AuthorizationRepository } from 'src/repositories/authorization/authorization.repository';
+import { SignInUserUseCase } from 'src/usecases/sign-in-user/sign-in-user.usecase';
 
 @Module({
   imports: [
-    JwtModule.register({
-      global: true,
-      secret: process.env.JWT_SECRET,
-      signOptions: { expiresIn: '24h' },
-    }),
+    JwtModule.register({}),
     MongooseModule.forFeature([
       {
         name: UserModel.name,
@@ -21,6 +19,11 @@ import { UserRepository } from 'src/repositories/user/user.repository';
     ]),
   ],
   controllers: [UserController],
-  providers: [UserRepository, CreateUserUseCase],
+  providers: [
+    AuthorizationRepository,
+    UserRepository,
+    CreateUserUseCase,
+    SignInUserUseCase,
+  ],
 })
 export class UserModule {}

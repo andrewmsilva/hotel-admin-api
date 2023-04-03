@@ -6,7 +6,7 @@ import { AccessTokenPayload } from 'src/entities/access-token.entity';
 @Injectable()
 export class AuthorizationRepository {
   private saltRounds = 10;
-  private jwtExpiration = '24h';
+  private jwtExpiration = process.env.JWT_EXPIRATION;
   private jwtSecret = process.env.JWT_SECRET;
 
   constructor(private jwtService: JwtService) {}
