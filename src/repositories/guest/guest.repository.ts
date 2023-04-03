@@ -12,10 +12,10 @@ export class GuestRepository {
   ) {}
 
   async create(guestProps: GuestProps): Promise<Guest> {
-    const user = new this.guestModel(guestProps);
+    const guest = new this.guestModel(guestProps);
 
     try {
-      await user.save();
+      await guest.save();
     } catch (error) {
       if (error.code === 11000) {
         throw new HttpException('Guest already exists', HttpStatus.CONFLICT);
@@ -23,6 +23,6 @@ export class GuestRepository {
       throw error;
     }
 
-    return mapGuestModel(user);
+    return mapGuestModel(guest);
   }
 }

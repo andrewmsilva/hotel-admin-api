@@ -47,12 +47,12 @@ describe('GuestRepository', () => {
 
   describe('create', () => {
     it('should create guest in db', async () => {
-      const user = await guestRepository.create(guestProps);
+      const guest = await guestRepository.create(guestProps);
 
-      expect(user.constructor.name).toBe(Guest.name);
-      expect(isUUID(user.id)).toBeTruthy;
-      expect(user).toEqual({
-        id: user.id,
+      expect(guest.constructor.name).toBe(Guest.name);
+      expect(isUUID(guest.id)).toBeTruthy;
+      expect(guest).toEqual({
+        id: guest.id,
         firstName: guestProps.firstName,
         lastName: guestProps.lastName,
         email: guestProps.email,
