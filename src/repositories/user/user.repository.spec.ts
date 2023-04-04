@@ -53,7 +53,7 @@ describe('UserRepository', () => {
       const user = await userRepository.create(userProps);
 
       expect(user.constructor.name).toBe(User.name);
-      expect(isUUID(user.id)).toBeTruthy;
+      expect(isUUID(user.id)).toBe(true);
       expect(user).toEqual({
         id: user.id,
         firstName: userProps.firstName,
@@ -80,7 +80,7 @@ describe('UserRepository', () => {
 
       expect(encryptedPassword).toBe(userProps.password);
       expect(user.constructor.name).toBe(User.name);
-      expect(isUUID(user.id)).toBeTruthy;
+      expect(isUUID(user.id)).toBe(true);
       expect(user).toEqual({
         id: user.id,
         firstName: userProps.firstName,

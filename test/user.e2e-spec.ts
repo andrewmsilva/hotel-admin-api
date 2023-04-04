@@ -61,7 +61,7 @@ describe('UserController (e2e)', () => {
 
       const { accessToken }: AccessToken = res.body;
 
-      expect(isJWT(accessToken)).toBeTruthy;
+      expect(isJWT(accessToken)).toBe(true);
     });
 
     it('should throw unauthorized error if user email incorrect', async () => {
@@ -111,7 +111,7 @@ describe('UserController (e2e)', () => {
 
       const user = res.body;
 
-      expect(isUUID(user.id)).toBeTruthy;
+      expect(isUUID(user.id)).toBe(true);
       expect(user).toEqual({
         id: user.id,
         ...userProps,

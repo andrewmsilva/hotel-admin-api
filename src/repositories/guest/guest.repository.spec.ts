@@ -76,7 +76,7 @@ describe('GuestRepository', () => {
 
   function checkGuest(guest: Guest) {
     expect(guest.constructor.name).toBe(Guest.name);
-    expect(isUUID(guest.id)).toBeTruthy;
+    expect(isUUID(guest.id)).toBe(true);
     expect(guest).toEqual({
       id: guest.id,
       firstName: guestProps.firstName,

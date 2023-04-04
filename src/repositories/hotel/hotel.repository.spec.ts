@@ -46,7 +46,7 @@ describe('HotelRepository', () => {
       const hotel = await hotelRepository.create(hotelProps);
 
       expect(hotel.constructor.name).toBe(Hotel.name);
-      expect(isUUID(hotel.id)).toBeTruthy;
+      expect(isUUID(hotel.id)).toBe(true);
       expect(hotel).toEqual({
         id: hotel.id,
         name: hotelProps.name,
