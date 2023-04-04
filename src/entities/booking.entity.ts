@@ -18,7 +18,4 @@ export class Booking {
   }
 }
 
-export interface BookingProps extends Omit<Booking, 'id' | 'guest' | 'room'> {
-  guestId: string;
-  roomId: string;
-}
+export type BookingProps = Omit<Booking, 'id'>;

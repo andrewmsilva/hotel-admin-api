@@ -42,7 +42,7 @@ describe('AuthorizationRepository', () => {
 
       const encryptedData = authorizationRepository.encrypt(data);
 
-      expect(bcrypt.compareSync(data, encryptedData)).toBeTruthy;
+      expect(bcrypt.compareSync(data, encryptedData)).toBe(true);
     });
   });
 

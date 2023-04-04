@@ -6,7 +6,6 @@ import { Model } from 'mongoose';
 import { Hotel } from 'src/entities/hotel.entity';
 import { HotelModel, HotelSchema } from '../hotel/hotel.schema';
 import { HotelRepository } from '../hotel/hotel.repository';
-import { HttpException, HttpStatus } from '@nestjs/common';
 import { BookingRepository } from './booking.repository';
 import { BookingModel, BookingSchema } from './booking.schema';
 import { Booking, BookingProps } from 'src/entities/booking.entity';
@@ -86,8 +85,8 @@ describe('BookingRepository', () => {
     bookingRepository = testModule.get<BookingRepository>(BookingRepository);
     bookingModel = (bookingRepository as any).bookingModel;
     bookingProps = {
-      roomId: room.id,
-      guestId: guest.id,
+      room,
+      guest,
       checkInAt: DateTime.now().toJSDate(),
       checkOutAt: DateTime.now().plus({ days: 5 }).toJSDate(),
     };
@@ -105,7 +104,7 @@ describe('BookingRepository', () => {
       const booking = await bookingRepository.create(bookingProps);
 
       expect(booking.constructor.name).toBe(Booking.name);
-      expect(isUUID(booking.id)).toBeTruthy;
+      expect(isUUID(booking.id)).toBe(true);
       expect(booking).toEqual({
         id: booking.id,
         guest,
@@ -113,44 +112,6 @@ describe('BookingRepository', () => {
         checkInAt: bookingProps.checkInAt,
         checkOutAt: bookingProps.checkOutAt,
       });
-    });
-
-    it('should throw an error if guest does not exist', async () => {
-      await expect(
-        bookingRepository.create({
-          ...bookingProps,
-          guestId: 'other-uuid-here',
-        }),
-      ).rejects.toThrow(
-        new HttpException('Guest not found', HttpStatus.NOT_FOUND),
-      );
-    });
-
-    it('should throw an error if room does not exist', async () => {
-      await expect(
-        bookingRepository.create({
-          ...bookingProps,
-          roomId: 'other-uuid-here',
-        }),
-      ).rejects.toThrow(
-        new HttpException('Room not found', HttpStatus.NOT_FOUND),
-      );
-    });
-
-    it('should throw an error if guest is missing', async () => {
-      await expect(
-        bookingRepository.create({ ...bookingProps, guestId: null }),
-      ).rejects.toThrow(
-        new HttpException('Guest not found', HttpStatus.NOT_FOUND),
-      );
-    });
-
-    it('should throw an error if room is missing', async () => {
-      await expect(
-        bookingRepository.create({ ...bookingProps, roomId: null }),
-      ).rejects.toThrow(
-        new HttpException('Room not found', HttpStatus.NOT_FOUND),
-      );
     });
   });
 
