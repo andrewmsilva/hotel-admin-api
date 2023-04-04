@@ -11,11 +11,11 @@ export class BookingModel implements Omit<Booking, 'id' | 'guest' | 'room'> {
   @Prop({ required: true, default: randomUUID })
   _id: string;
 
-  @Prop({ type: Types.ObjectId, ref: GuestModel.name })
+  @Prop({ required: true, type: Types.ObjectId, ref: GuestModel.name })
   @Type(() => GuestModel)
   guest: GuestModel;
 
-  @Prop({ type: Types.ObjectId, ref: RoomModel.name })
+  @Prop({ required: true, type: Types.ObjectId, ref: RoomModel.name })
   @Type(() => RoomModel)
   room: RoomModel;
 

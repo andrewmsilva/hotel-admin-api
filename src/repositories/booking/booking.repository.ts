@@ -33,4 +33,15 @@ export class BookingRepository {
 
     return mapBookingModel(booking);
   }
+
+  async existOneWithOverlappingDates(
+    startAt: Date,
+    endAt: Date,
+  ): Promise<boolean> {
+    const booking = await this.bookingModel
+      .findOne()
+      .and([{ checkInAt: { $lt: endAt } }, { checkOutAt: { $gt: startAt } }]);
+
+    return !!booking;
+  }
 }

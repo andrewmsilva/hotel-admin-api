@@ -16,6 +16,7 @@ import { RoomRepository } from '../room/room.repository';
 import { GuestRepository } from '../guest/guest.repository';
 import { Room, RoomStatus } from 'src/entities/room.entity';
 import { Gender, Guest } from 'src/entities/guest.entity';
+import { DateTime } from 'luxon';
 
 describe('BookingRepository', () => {
   let bookingRepository: BookingRepository;
@@ -88,8 +89,8 @@ describe('BookingRepository', () => {
     bookingProps = {
       roomId: room.id,
       guestId: guest.id,
-      checkInAt: new Date(),
-      checkOutAt: new Date(),
+      checkInAt: DateTime.now().toJSDate(),
+      checkOutAt: DateTime.now().plus({ days: 5 }).toJSDate(),
     };
   });
 
@@ -151,6 +152,73 @@ describe('BookingRepository', () => {
       ).rejects.toThrow(
         new HttpException('Room not found', HttpStatus.NOT_FOUND),
       );
+    });
+  });
+
+  describe('existOneWithOverlappingDates', () => {
+    let existentBooking: BookingModel;
+    let startAt: Date;
+    let endAt: Date;
+
+    beforeEach(async () => {
+      const existentGuest = await guestModel.findById(guest.id);
+      const existentRoom = await roomModel.findById(room.id).populate('hotel');
+
+      existentBooking = await bookingModel.create({
+        ...bookingProps,
+        guest: existentGuest,
+        room: existentRoom,
+      });
+
+      startAt = existentBooking.checkInAt;
+      endAt = existentBooking.checkOutAt;
+    });
+
+    it('should return true if given interval is exactly the same', async () => {
+      const isRoomAvailable =
+        await bookingRepository.existOneWithOverlappingDates(startAt, endAt);
+
+      expect(isRoomAvailable).toBeTruthy;
+    });
+
+    it('should return true if given interval is overlapping from left', async () => {
+      startAt = DateTime.fromJSDate(startAt).minus({ days: 2 }).toJSDate();
+      endAt = DateTime.fromJSDate(endAt).minus({ days: 2 }).toJSDate();
+
+      const isRoomAvailable =
+        await bookingRepository.existOneWithOverlappingDates(startAt, endAt);
+
+      expect(isRoomAvailable).toBeTruthy;
+    });
+
+    it('should return true if given interval is overlapping from right', async () => {
+      startAt = DateTime.fromJSDate(startAt).plus({ days: 2 }).toJSDate();
+      endAt = DateTime.fromJSDate(endAt).plus({ days: 2 }).toJSDate();
+
+      const isRoomAvailable =
+        await bookingRepository.existOneWithOverlappingDates(startAt, endAt);
+
+      expect(isRoomAvailable).toBeTruthy;
+    });
+
+    it('should return false if given interval is touching the left', async () => {
+      startAt = DateTime.fromJSDate(startAt).minus({ days: 5 }).toJSDate();
+      endAt = DateTime.fromJSDate(endAt).minus({ days: 5 }).toJSDate();
+
+      const isRoomAvailable =
+        await bookingRepository.existOneWithOverlappingDates(startAt, endAt);
+
+      expect(isRoomAvailable).toBeTruthy;
+    });
+
+    it('should return false if given interval is touching the left', async () => {
+      startAt = DateTime.fromJSDate(startAt).plus({ days: 5 }).toJSDate();
+      endAt = DateTime.fromJSDate(endAt).plus({ days: 5 }).toJSDate();
+
+      const isRoomAvailable =
+        await bookingRepository.existOneWithOverlappingDates(startAt, endAt);
+
+      expect(isRoomAvailable).toBeTruthy;
     });
   });
 });
