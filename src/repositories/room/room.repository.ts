@@ -14,7 +14,7 @@ export class RoomRepository {
   ) {}
 
   async create(roomProps: RoomProps): Promise<Room> {
-    const hotel = await this.hotelModel.findById(roomProps.hotel?.id);
+    const hotel = await this.hotelModel.findOne({ _id: roomProps.hotelId });
     if (!hotel) {
       throw new HttpException('Hotel not found', HttpStatus.NOT_FOUND);
     }

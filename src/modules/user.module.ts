@@ -11,12 +11,7 @@ import { SignInUserUseCase } from 'src/usecases/sign-in-user/sign-in-user.usecas
 @Module({
   imports: [
     JwtModule.register({}),
-    MongooseModule.forFeature([
-      {
-        name: UserModel.name,
-        schema: UserSchema,
-      },
-    ]),
+    MongooseModule.forFeature([{ name: UserModel.name, schema: UserSchema }]),
   ],
   controllers: [UserController],
   providers: [

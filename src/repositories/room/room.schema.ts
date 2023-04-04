@@ -1,7 +1,7 @@
 import { Prop, Schema, SchemaFactory } from '@nestjs/mongoose';
 import { Type } from 'class-transformer';
 import { randomUUID } from 'crypto';
-import mongoose from 'mongoose';
+import { Types } from 'mongoose';
 import { Room, RoomStatus } from 'src/entities/room.entity';
 import { HotelModel } from '../hotel/hotel.schema';
 
@@ -10,7 +10,7 @@ export class RoomModel implements Omit<Room, 'id' | 'hotel'> {
   @Prop({ required: true, default: randomUUID })
   _id: string;
 
-  @Prop({ type: mongoose.Schema.Types.ObjectId, ref: HotelModel.name })
+  @Prop({ required: true, type: Types.ObjectId, ref: HotelModel.name })
   @Type(() => HotelModel)
   hotel: HotelModel;
 
