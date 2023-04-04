@@ -14,6 +14,7 @@ import { HttpException, HttpStatus } from '@nestjs/common';
 describe('RoomRepository', () => {
   let roomRepository: RoomRepository;
   let roomModel: Model<RoomModel>;
+  let hotelModel: Model<HotelModel>;
 
   let hotel: Hotel;
   let roomProps: RoomProps;
@@ -34,6 +35,7 @@ describe('RoomRepository', () => {
     }).compile();
 
     const hotelRepository = testModule.get<HotelRepository>(HotelRepository);
+    hotelModel = (hotelRepository as any).hotelModel;
     hotel = await hotelRepository.create({
       name: 'Hotel Name',
       stars: 4.5,
@@ -58,24 +60,14 @@ describe('RoomRepository', () => {
 
   afterEach(async () => {
     await roomModel.deleteMany();
+    await hotelModel.deleteMany();
   });
 
   describe('create', () => {
     it('should create room in db', async () => {
       const room = await roomRepository.create(roomProps);
 
-      expect(room.constructor.name).toBe(Room.name);
-      expect(isUUID(room.id)).toBeTruthy;
-      expect(room).toEqual({
-        id: room.id,
-        hotel,
-        name: roomProps.name,
-        identifier: roomProps.identifier,
-        status: roomProps.status,
-        maxGuests: roomProps.maxGuests,
-        oldPriceCents: roomProps.oldPriceCents,
-        priceCents: roomProps.priceCents,
-      });
+      checkRoom(room);
     });
 
     it('should throw an error if hotel does not exist', async () => {
@@ -94,4 +86,43 @@ describe('RoomRepository', () => {
       );
     });
   });
+
+  describe('findOneById', () => {
+    it('should find room by id', async () => {
+      const existentHotel = await hotelModel.findById(hotel.id);
+      const existentRoom = await roomModel.create({
+        ...roomProps,
+        hotel: existentHotel,
+      });
+
+      console.log(existentRoom);
+
+      const room = await roomRepository.findOneById(existentRoom._id);
+
+      console.log(room);
+
+      checkRoom(room);
+    });
+
+    it('should return null if room does not exist', async () => {
+      const room = await roomRepository.findOneById('other-uuid-here');
+
+      expect(room).toBeNull;
+    });
+  });
+
+  function checkRoom(room: Room) {
+    expect(room.constructor.name).toBe(Room.name);
+    expect(isUUID(room.id)).toBeTruthy;
+    expect(room).toEqual({
+      id: room.id,
+      hotel,
+      name: roomProps.name,
+      identifier: roomProps.identifier,
+      status: roomProps.status,
+      maxGuests: roomProps.maxGuests,
+      oldPriceCents: roomProps.oldPriceCents,
+      priceCents: roomProps.priceCents,
+    });
+  }
 });

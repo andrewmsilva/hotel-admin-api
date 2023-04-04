@@ -46,16 +46,7 @@ describe('GuestRepository', () => {
     it('should create guest in db', async () => {
       const guest = await guestRepository.create(guestProps);
 
-      expect(guest.constructor.name).toBe(Guest.name);
-      expect(isUUID(guest.id)).toBeTruthy;
-      expect(guest).toEqual({
-        id: guest.id,
-        firstName: guestProps.firstName,
-        lastName: guestProps.lastName,
-        email: guestProps.email,
-        phone: guestProps.phone,
-        gender: guestProps.gender,
-      });
+      checkGuest(guest);
     });
 
     it('should throw an error if guest email is already taken', async () => {
@@ -66,4 +57,33 @@ describe('GuestRepository', () => {
       );
     });
   });
+
+  describe('findOneById', () => {
+    it('should find guest by id', async () => {
+      const existentGuest = await guestModel.create(guestProps);
+
+      const guest = await guestRepository.findOneById(existentGuest._id);
+
+      checkGuest(guest);
+    });
+
+    it('should return null if guest does not exist', async () => {
+      const guest = await guestRepository.findOneById('other-uuid-here');
+
+      expect(guest).toBeNull;
+    });
+  });
+
+  function checkGuest(guest: Guest) {
+    expect(guest.constructor.name).toBe(Guest.name);
+    expect(isUUID(guest.id)).toBeTruthy;
+    expect(guest).toEqual({
+      id: guest.id,
+      firstName: guestProps.firstName,
+      lastName: guestProps.lastName,
+      email: guestProps.email,
+      phone: guestProps.phone,
+      gender: guestProps.gender,
+    });
+  }
 });
