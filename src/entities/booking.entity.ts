@@ -6,15 +6,15 @@ export class Booking {
 
   guest: Guest;
   room: Room;
-  startAt: Date;
-  endAt: Date;
+  checkInAt: Date;
+  checkOutAt: Date;
 
   constructor(props: Booking) {
     this.id = props.id;
     this.guest = props.guest;
     this.room = props.room;
-    this.startAt = props.startAt;
-    this.endAt = props.endAt;
+    this.checkInAt = props.checkInAt;
+    this.checkOutAt = props.checkOutAt;
   }
 }
 

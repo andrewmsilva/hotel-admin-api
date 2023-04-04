@@ -88,8 +88,8 @@ describe('BookingRepository', () => {
     bookingProps = {
       roomId: room.id,
       guestId: guest.id,
-      startAt: new Date(),
-      endAt: new Date(),
+      checkInAt: new Date(),
+      checkOutAt: new Date(),
     };
   });
 
@@ -110,8 +110,8 @@ describe('BookingRepository', () => {
         id: booking.id,
         guest,
         room,
-        startAt: bookingProps.startAt,
-        endAt: bookingProps.endAt,
+        checkInAt: bookingProps.checkInAt,
+        checkOutAt: bookingProps.checkOutAt,
       });
     });
 

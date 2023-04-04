@@ -20,10 +20,10 @@ export class BookingModel implements Omit<Booking, 'id' | 'guest' | 'room'> {
   room: RoomModel;
 
   @Prop({ required: true })
-  startAt: Date;
+  checkInAt: Date;
 
   @Prop({ required: true })
-  endAt: Date;
+  checkOutAt: Date;
 }
 
 export const BookingSchema = SchemaFactory.createForClass(BookingModel);
