@@ -31,4 +31,6 @@ export class Room {
   }
 }
 
-export type RoomProps = Omit<Room, 'id'>;
+export interface RoomProps extends Omit<Room, 'id' | 'hotel'> {
+  hotelId: string;
+}

@@ -13,7 +13,6 @@ import { HttpException, HttpStatus } from '@nestjs/common';
 
 describe('RoomRepository', () => {
   let roomRepository: RoomRepository;
-  let hotelModel: Model<HotelModel>;
   let roomModel: Model<RoomModel>;
 
   let hotel: Hotel;
@@ -35,8 +34,6 @@ describe('RoomRepository', () => {
     }).compile();
 
     const hotelRepository = testModule.get<HotelRepository>(HotelRepository);
-    hotelModel = (hotelRepository as any).hotelModel;
-
     hotel = await hotelRepository.create({
       name: 'Hotel Name',
       stars: 4.5,
@@ -46,7 +43,7 @@ describe('RoomRepository', () => {
     });
 
     roomProps = {
-      hotel,
+      hotelId: hotel.id,
       name: 'Room Name',
       identifier: '1203',
       status: RoomStatus.Available,
@@ -82,16 +79,16 @@ describe('RoomRepository', () => {
     });
 
     it('should throw an error if hotel does not exist', async () => {
-      await hotelModel.findByIdAndDelete(hotel.id);
-
-      await expect(roomRepository.create(roomProps)).rejects.toThrow(
+      await expect(
+        roomRepository.create({ ...roomProps, hotelId: 'other-uuid-here' }),
+      ).rejects.toThrow(
         new HttpException('Hotel not found', HttpStatus.NOT_FOUND),
       );
     });
 
     it('should throw an error if hotel is missing', async () => {
       await expect(
-        roomRepository.create({ ...roomProps, hotel: null }),
+        roomRepository.create({ ...roomProps, hotelId: null }),
       ).rejects.toThrow(
         new HttpException('Hotel not found', HttpStatus.NOT_FOUND),
       );
