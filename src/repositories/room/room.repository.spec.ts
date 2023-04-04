@@ -3,7 +3,7 @@ import { MongooseModule } from '@nestjs/mongoose';
 import { ConfigModule } from '@nestjs/config';
 import { isUUID } from 'class-validator';
 import { Model } from 'mongoose';
-import { Room, RoomProps, RoomStatus } from 'src/entities/room.entity';
+import { Room, RoomProps } from 'src/entities/room.entity';
 import { RoomRepository } from './room.repository';
 import { RoomModel, RoomSchema } from './room.schema';
 import { Hotel } from 'src/entities/hotel.entity';
@@ -48,7 +48,6 @@ describe('RoomRepository', () => {
       hotelId: hotel.id,
       name: 'Room Name',
       identifier: '1203',
-      status: RoomStatus.Available,
       maxGuests: 2,
       oldPriceCents: 18000,
       priceCents: 13000,
@@ -115,7 +114,6 @@ describe('RoomRepository', () => {
       hotel,
       name: roomProps.name,
       identifier: roomProps.identifier,
-      status: roomProps.status,
       maxGuests: roomProps.maxGuests,
       oldPriceCents: roomProps.oldPriceCents,
       priceCents: roomProps.priceCents,

@@ -2,7 +2,7 @@ import { Prop, Schema, SchemaFactory } from '@nestjs/mongoose';
 import { Type } from 'class-transformer';
 import { randomUUID } from 'crypto';
 import { Types } from 'mongoose';
-import { Room, RoomStatus } from 'src/entities/room.entity';
+import { Room } from 'src/entities/room.entity';
 import { HotelModel } from '../hotel/hotel.schema';
 
 @Schema({ collection: 'rooms' })
@@ -19,9 +19,6 @@ export class RoomModel implements Omit<Room, 'id' | 'hotel'> {
 
   @Prop({ required: true })
   identifier: string;
-
-  @Prop({ required: true, enum: RoomStatus })
-  status: RoomStatus;
 
   @Prop({ required: true })
   maxGuests: number;

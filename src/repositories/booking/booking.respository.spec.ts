@@ -14,7 +14,7 @@ import { RoomModel, RoomSchema } from '../room/room.schema';
 import { GuestModel, GuestSchema } from '../guest/guest.schema';
 import { RoomRepository } from '../room/room.repository';
 import { GuestRepository } from '../guest/guest.repository';
-import { Room, RoomStatus } from 'src/entities/room.entity';
+import { Room } from 'src/entities/room.entity';
 import { Gender, Guest } from 'src/entities/guest.entity';
 import { DateTime } from 'luxon';
 
@@ -68,7 +68,6 @@ describe('BookingRepository', () => {
       hotelId: hotel.id,
       name: 'Room Name',
       identifier: '1203',
-      status: RoomStatus.Available,
       maxGuests: 2,
       oldPriceCents: 18000,
       priceCents: 13000,
