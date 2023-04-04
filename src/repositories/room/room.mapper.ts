@@ -8,7 +8,6 @@ export function mapRoomModel(roomModel: RoomModel): Room {
     hotel: mapHotelModel(roomModel.hotel),
     name: roomModel.name,
     identifier: roomModel.identifier,
-    status: roomModel.status,
     maxGuests: roomModel.maxGuests,
     oldPriceCents: roomModel.oldPriceCents,
     priceCents: roomModel.priceCents,

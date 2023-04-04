@@ -8,7 +8,7 @@ export function mapBookingModel(bookingModel: BookingModel): Booking {
     id: bookingModel._id,
     guest: mapGuestModel(bookingModel.guest),
     room: mapRoomModel(bookingModel.room),
-    startAt: bookingModel.startAt,
-    endAt: bookingModel.endAt,
+    checkInAt: bookingModel.checkInAt,
+    checkOutAt: bookingModel.checkOutAt,
   });
 }

@@ -24,4 +24,13 @@ export class RoomRepository {
 
     return mapRoomModel(room);
   }
+
+  async findOneById(id: string): Promise<Room> {
+    const room = await this.roomModel.findById(id).populate('hotel');
+    if (!room) {
+      return null;
+    }
+
+    return mapRoomModel(room);
+  }
 }

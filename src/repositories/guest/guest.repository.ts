@@ -25,4 +25,13 @@ export class GuestRepository {
 
     return mapGuestModel(guest);
   }
+
+  async findOneById(id: string): Promise<Guest> {
+    const guest = await this.guestModel.findById(id);
+    if (!guest) {
+      return null;
+    }
+
+    return mapGuestModel(guest);
+  }
 }

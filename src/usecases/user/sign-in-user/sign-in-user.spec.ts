@@ -60,7 +60,7 @@ describe('SignInUserUseCase', () => {
   it('should sign in a user', async () => {
     const result = await signInUserUseCase.execute(credentials);
 
-    expect(isJWT(result.accessToken)).toBeTruthy;
+    expect(isJWT(result.accessToken)).toBe(true);
   });
 
   it('should throw error if email is incorrect', async () => {

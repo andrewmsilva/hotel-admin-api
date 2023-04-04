@@ -9,10 +9,10 @@ import {
 import { AccessToken } from 'src/entities/access-token.entity';
 import { User } from 'src/entities/user.entity';
 import { AuthorizationGuard } from 'src/guards/authorization.guard';
-import { CreateUserDTO } from 'src/usecases/create-user/create-user.dto';
-import { CreateUserUseCase } from 'src/usecases/create-user/create-user.usecase';
-import { SignInUserDTO } from 'src/usecases/sign-in-user/sign-in-user.dto.user';
-import { SignInUserUseCase } from 'src/usecases/sign-in-user/sign-in-user.usecase';
+import { CreateUserDTO } from 'src/usecases/user/create-user/create-user.dto';
+import { CreateUserUseCase } from 'src/usecases/user/create-user/create-user.usecase';
+import { SignInUserDTO } from 'src/usecases/user/sign-in-user/sign-in-user.dto.user';
+import { SignInUserUseCase } from 'src/usecases/user/sign-in-user/sign-in-user.usecase';
 
 @Controller('user')
 export class UserController {
