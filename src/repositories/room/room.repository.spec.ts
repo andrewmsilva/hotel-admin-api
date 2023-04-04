@@ -95,11 +95,7 @@ describe('RoomRepository', () => {
         hotel: existentHotel,
       });
 
-      console.log(existentRoom);
-
       const room = await roomRepository.findOneById(existentRoom._id);
-
-      console.log(room);
 
       checkRoom(room);
     });

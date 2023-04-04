@@ -34,13 +34,18 @@ export class BookingRepository {
     return mapBookingModel(booking);
   }
 
-  async existOneWithOverlappingDates(
+  async existOneWithOverlappingDatesByRoom(
+    roomId: string,
     startAt: Date,
     endAt: Date,
   ): Promise<boolean> {
     const booking = await this.bookingModel
       .findOne()
-      .and([{ checkInAt: { $lt: endAt } }, { checkOutAt: { $gt: startAt } }]);
+      .and([
+        { room: roomId },
+        { checkInAt: { $lt: endAt } },
+        { checkOutAt: { $gt: startAt } },
+      ]);
 
     return !!booking;
   }
