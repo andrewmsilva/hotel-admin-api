@@ -30,7 +30,7 @@ describe('CreateBookingUseCase', () => {
           provide: BookingRepository,
           useValue: {
             create: () => createdBooking,
-            existOneWithOverlappingDatesByRoom: () => isRoomAvailable,
+            existOneWithOverlappingDatesByRoom: () => !isRoomAvailable,
           },
         },
         {

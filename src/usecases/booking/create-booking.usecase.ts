@@ -25,11 +25,11 @@ export class CreateBookingUseCase {
     }
 
     const isRoomAvailable =
-      await this.bookingRepository.existOneWithOverlappingDatesByRoom(
+      !(await this.bookingRepository.existOneWithOverlappingDatesByRoom(
         bookingDto.roomId,
         bookingDto.checkInAt,
         bookingDto.checkOutAt,
-      );
+      ));
 
     if (!isRoomAvailable) {
       throw new HttpException(

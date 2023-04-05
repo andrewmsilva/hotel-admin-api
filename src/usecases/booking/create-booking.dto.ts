@@ -1,3 +1,4 @@
+import { Type } from 'class-transformer';
 import { IsDate, IsNotEmpty, IsUUID } from 'class-validator';
 import { BookingProps } from 'src/entities/booking.entity';
 
@@ -14,9 +15,11 @@ export class CreateBookingDTO
 
   @IsDate()
   @IsNotEmpty()
+  @Type(() => Date)
   checkInAt: Date;
 
   @IsDate()
   @IsNotEmpty()
+  @Type(() => Date)
   checkOutAt: Date;
 }
