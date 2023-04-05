@@ -8,6 +8,8 @@ export class Booking {
   room: Room;
   checkInAt: Date;
   checkOutAt: Date;
+  priceCents: number;
+  totalCents: number;
 
   constructor(props: Booking) {
     this.id = props.id;
@@ -15,7 +17,12 @@ export class Booking {
     this.room = props.room;
     this.checkInAt = props.checkInAt;
     this.checkOutAt = props.checkOutAt;
+    this.priceCents = props.priceCents;
+    this.totalCents = props.totalCents;
   }
 }
 
-export type BookingProps = Omit<Booking, 'id'>;
+export interface BookingProps extends Omit<Booking, 'id' | 'guest' | 'room'> {
+  guestId: string;
+  roomId: string;
+}
