@@ -102,7 +102,7 @@ describe('CreateBookingUseCase', () => {
 
     await expect(createBookingUseCase.execute(bookingProps)).rejects.toThrow(
       new HttpException(
-        'Room is unavailable in the chosen time window',
+        'Room is unavailable in the chosen date interval',
         HttpStatus.CONFLICT,
       ),
     );
