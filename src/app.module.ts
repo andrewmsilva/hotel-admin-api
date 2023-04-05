@@ -22,6 +22,7 @@ import { HotelRepository } from './repositories/hotel/hotel.repository';
 import { UserModel, UserSchema } from './repositories/user/user.schema';
 import { MulterModule } from '@nestjs/platform-express';
 import { CreateBookingUseCase } from './usecases/booking/create-booking/create-booking.usecase';
+import { ConfirmBookingUseCase } from './usecases/booking/confirm-booking/confirm-booking.usecase';
 
 const ENV = process.env.NODE_ENV;
 
@@ -58,6 +59,7 @@ const ENV = process.env.NODE_ENV;
     CreateUserUseCase,
     SignInUserUseCase,
     CreateBookingUseCase,
+    ConfirmBookingUseCase,
   ],
 })
 export class AppModule {}
