@@ -3,7 +3,11 @@ import { IsDate, IsNotEmpty, IsUUID } from 'class-validator';
 import { BookingProps } from 'src/entities/booking.entity';
 
 export class CreateBookingDTO
-  implements Omit<BookingProps, 'id' | 'priceCents' | 'totalCents'>
+  implements
+    Omit<
+      BookingProps,
+      'id' | 'priceCents' | 'totalCents' | 'status' | 'receipt'
+    >
 {
   @IsUUID()
   @IsNotEmpty()

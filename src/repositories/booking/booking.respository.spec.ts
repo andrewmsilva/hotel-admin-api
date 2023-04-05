@@ -8,7 +8,11 @@ import { HotelModel, HotelSchema } from '../hotel/hotel.schema';
 import { HotelRepository } from '../hotel/hotel.repository';
 import { BookingRepository } from './booking.repository';
 import { BookingModel, BookingSchema } from './booking.schema';
-import { Booking, BookingProps } from 'src/entities/booking.entity';
+import {
+  Booking,
+  BookingProps,
+  BookingStatus,
+} from 'src/entities/booking.entity';
 import { RoomModel, RoomSchema } from '../room/room.schema';
 import { GuestModel, GuestSchema } from '../guest/guest.schema';
 import { RoomRepository } from '../room/room.repository';
@@ -210,6 +214,7 @@ describe('BookingRepository', () => {
         id: booking.id,
         guest,
         room,
+        status: BookingStatus.Created,
         checkInAt: bookingProps.checkInAt,
         checkOutAt: bookingProps.checkOutAt,
         priceCents: bookingProps.priceCents,

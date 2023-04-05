@@ -2,7 +2,7 @@ import { Prop, Schema, SchemaFactory } from '@nestjs/mongoose';
 import { Type } from 'class-transformer';
 import { randomUUID } from 'crypto';
 import { Types } from 'mongoose';
-import { Booking } from 'src/entities/booking.entity';
+import { Booking, BookingStatus } from 'src/entities/booking.entity';
 import { GuestModel } from '../guest/guest.schema';
 
 @Schema({ collection: 'bookings' })
@@ -13,6 +13,12 @@ export class BookingModel implements Omit<Booking, 'id' | 'guest' | 'room'> {
   @Prop({ required: true, type: Types.ObjectId, ref: GuestModel.name })
   @Type(() => GuestModel)
   guest: GuestModel;
+
+  @Prop({ required: true, enum: BookingStatus, default: BookingStatus.Created })
+  status: BookingStatus;
+
+  @Prop()
+  receipt?: string;
 
   @Prop({ required: true })
   checkInAt: Date;

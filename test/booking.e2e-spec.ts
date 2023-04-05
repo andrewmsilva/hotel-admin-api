@@ -20,6 +20,7 @@ import { Guest } from 'src/entities/guest.entity';
 import { isUUID } from 'class-validator';
 import { DateTime } from 'luxon';
 import { CreateBookingDTO } from 'src/usecases/booking/create-booking/create-booking.dto';
+import { BookingStatus } from 'src/entities/booking.entity';
 
 describe('BookingController (e2e)', () => {
   let app: INestApplication;
@@ -196,6 +197,7 @@ describe('BookingController (e2e)', () => {
         id: booking.id,
         room: { ...room, hotel: { ...hotel } },
         guest: { ...guest },
+        status: BookingStatus.Created,
         checkInAt: bookingDto.checkInAt.toISOString(),
         checkOutAt: bookingDto.checkOutAt.toISOString(),
         priceCents: room.priceCents,

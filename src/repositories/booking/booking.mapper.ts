@@ -12,6 +12,7 @@ export function mapBookingModel(
     id: bookingModel._id,
     guest: mapGuestModel(bookingModel.guest),
     room: mapRoomModel(roomModel),
+    status: bookingModel.status,
     checkInAt: bookingModel.checkInAt,
     checkOutAt: bookingModel.checkOutAt,
     priceCents: bookingModel.priceCents,
