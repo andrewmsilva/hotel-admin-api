@@ -17,9 +17,9 @@ import { Seed } from 'src/seeds/seed';
 import { Hotel } from 'src/entities/hotel.entity';
 import { Room } from 'src/entities/room.entity';
 import { Guest } from 'src/entities/guest.entity';
-import { CreateBookingDTO } from 'src/usecases/booking/create-booking.dto';
 import { isUUID } from 'class-validator';
 import { DateTime } from 'luxon';
+import { CreateBookingDTO } from 'src/usecases/booking/create-booking/create-booking.dto';
 
 describe('BookingController (e2e)', () => {
   let app: INestApplication;
