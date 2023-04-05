@@ -1,12 +1,12 @@
 import { Injectable } from '@nestjs/common';
 import { BookingRepository } from 'src/repositories/booking/booking.repository';
-import { AddReceiptDTO } from './add-receipt.dto';
+import { ConfirmBookingDTO } from './confirm-booking.dto';
 
 @Injectable()
-export class AddReceiptUseCase {
+export class ConfirmBookingUseCase {
   constructor(private readonly bookingRepository: BookingRepository) {}
 
-  async execute(receiptProps: AddReceiptDTO): Promise<boolean> {
+  async execute(receiptProps: ConfirmBookingDTO): Promise<boolean> {
     const isConfirmed = await this.bookingRepository.setReceiptById(
       receiptProps.bookingId,
       receiptProps.fileName,

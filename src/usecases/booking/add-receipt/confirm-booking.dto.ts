@@ -1,6 +1,6 @@
 import { IsNotEmpty, IsUUID } from 'class-validator';
 
-export class AddReceiptDTO {
+export class ConfirmBookingDTO {
   @IsUUID()
   @IsNotEmpty()
   bookingId: string;

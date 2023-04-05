@@ -1,13 +1,13 @@
 import { Test } from '@nestjs/testing';
-import { AddReceiptUseCase } from './add-receipt.usecase';
+import { ConfirmBookingUseCase } from './confirm-booking.usecase';
 import { BookingRepository } from 'src/repositories/booking/booking.repository';
-import { AddReceiptDTO } from './add-receipt.dto';
+import { ConfirmBookingDTO } from './confirm-booking.dto';
 
 describe('CreateBookingUseCase', () => {
-  let addReceiptUseCase: AddReceiptUseCase;
+  let addReceiptUseCase: ConfirmBookingUseCase;
   let setBookingAsConfirmed: boolean;
 
-  const receiptProps: AddReceiptDTO = {
+  const receiptProps: ConfirmBookingDTO = {
     bookingId: 'uuid-here',
     fileName: 'file-name',
   };
@@ -15,7 +15,7 @@ describe('CreateBookingUseCase', () => {
   beforeEach(async () => {
     const testModule = await Test.createTestingModule({
       providers: [
-        AddReceiptUseCase,
+        ConfirmBookingUseCase,
         {
           provide: BookingRepository,
           useValue: {
@@ -25,7 +25,9 @@ describe('CreateBookingUseCase', () => {
       ],
     }).compile();
 
-    addReceiptUseCase = testModule.get<AddReceiptUseCase>(AddReceiptUseCase);
+    addReceiptUseCase = testModule.get<ConfirmBookingUseCase>(
+      ConfirmBookingUseCase,
+    );
 
     setBookingAsConfirmed = true;
   });
