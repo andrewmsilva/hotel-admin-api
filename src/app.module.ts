@@ -14,13 +14,14 @@ import { AuthorizationRepository } from './repositories/authorization/authorizat
 import { BookingRepository } from './repositories/booking/booking.repository';
 import { GuestRepository } from './repositories/guest/guest.repository';
 import { RoomRepository } from './repositories/room/room.repository';
-import { CreateBookingUseCase } from './usecases/booking/create-booking.usecase';
 import { CreateUserUseCase } from './usecases/user/create-user/create-user.usecase';
 import { SignInUserUseCase } from './usecases/user/sign-in-user/sign-in-user.usecase';
 import { UserController } from './controllers/user.controller';
 import { UserRepository } from './repositories/user/user.repository';
 import { HotelRepository } from './repositories/hotel/hotel.repository';
 import { UserModel, UserSchema } from './repositories/user/user.schema';
+import { MulterModule } from '@nestjs/platform-express';
+import { CreateBookingUseCase } from './usecases/booking/create-booking/create-booking.usecase';
 
 const ENV = process.env.NODE_ENV;
 
@@ -40,6 +41,9 @@ const ENV = process.env.NODE_ENV;
       { name: GuestModel.name, schema: GuestSchema },
       { name: BookingModel.name, schema: BookingSchema },
     ]),
+    MulterModule.register({
+      dest: './uploads',
+    }),
   ],
   controllers: [UserController, BookingController],
   providers: [
