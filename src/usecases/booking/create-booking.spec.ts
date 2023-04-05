@@ -18,8 +18,8 @@ describe('CreateBookingUseCase', () => {
 
   let existentGuest: Guest;
   let existentRoom: Room;
-  let isRoomAvailable: boolean;
   let createdBooking: Booking;
+  let throwOverlappingError: boolean;
 
   let bookingProps: CreateBookingDTO;
 
@@ -30,8 +30,15 @@ describe('CreateBookingUseCase', () => {
         {
           provide: BookingRepository,
           useValue: {
-            create: () => createdBooking,
-            existOneWithOverlappingDatesByRoom: () => !isRoomAvailable,
+            createWithoutOverlapping: () => {
+              if (throwOverlappingError) {
+                throw new HttpException(
+                  'Room is unavailable in the chosen date interval',
+                  HttpStatus.CONFLICT,
+                );
+              }
+              return createdBooking;
+            },
           },
         },
         {
@@ -56,12 +63,12 @@ describe('CreateBookingUseCase', () => {
       hotel: new Hotel({ id: randomUUID(), ...seed.hotel.createProps() }),
     });
 
-    isRoomAvailable = true;
-
+    const props = seed.booking.createProps();
     bookingProps = {
-      ...seed.booking.createProps(),
       roomId: existentRoom.id,
       guestId: existentGuest.id,
+      checkInAt: props.checkInAt,
+      checkOutAt: props.checkOutAt,
     };
 
     createdBooking = new Booking({
@@ -70,7 +77,11 @@ describe('CreateBookingUseCase', () => {
       guest: existentGuest,
       checkInAt: bookingProps.checkInAt,
       checkOutAt: bookingProps.checkOutAt,
+      priceCents: existentRoom.priceCents,
+      totalCents: existentRoom.priceCents * seed.booking.bookingDays,
     });
+
+    throwOverlappingError = false;
 
     createBookingUseCase =
       testModule.get<CreateBookingUseCase>(CreateBookingUseCase);
@@ -83,7 +94,7 @@ describe('CreateBookingUseCase', () => {
   });
 
   it('should throw conflict error if room is unavailable', async () => {
-    isRoomAvailable = false;
+    throwOverlappingError = true;
 
     await expect(createBookingUseCase.execute(bookingProps)).rejects.toThrow(
       new HttpException(

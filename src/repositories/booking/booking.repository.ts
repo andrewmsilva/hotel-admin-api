@@ -1,4 +1,4 @@
-import { Injectable } from '@nestjs/common';
+import { HttpException, HttpStatus, Injectable } from '@nestjs/common';
 import { InjectModel } from '@nestjs/mongoose';
 import { Model } from 'mongoose';
 import { Booking, BookingProps } from 'src/entities/booking.entity';
@@ -15,32 +15,48 @@ export class BookingRepository {
     @InjectModel(BookingModel.name) private bookingModel: Model<BookingModel>,
   ) {}
 
-  async create(bookingProps: BookingProps): Promise<Booking> {
-    const guest = await this.guestModel.findById(bookingProps.guest.id);
+  async createWithoutOverlapping(bookingProps: BookingProps): Promise<Booking> {
+    const guest = await this.guestModel.findById(bookingProps.guestId);
 
-    const room = await this.roomModel
-      .findById(bookingProps.room.id)
-      .populate('hotel');
+    // Get room if chosen time is not overlapping any other booking
+    let room = await this.roomModel.findOne({
+      _id: bookingProps.roomId,
+      $nor: [
+        {
+          $and: [
+            { 'bookings.checkInAt': { $lt: bookingProps.checkOutAt } },
+            { 'bookings.checkOutAt': { $gt: bookingProps.checkInAt } },
+          ],
+        },
+      ],
+    });
 
-    const booking = new this.bookingModel({ ...bookingProps, guest, room });
-    await booking.save();
+    if (!room) {
+      throw new HttpException(
+        'Room is unavailable in the chosen date interval',
+        HttpStatus.CONFLICT,
+      );
+    }
 
-    return mapBookingModel(booking);
-  }
+    const booking = await this.bookingModel.create({
+      ...bookingProps,
+      guest,
+    });
 
-  async existOneWithOverlappingDatesByRoom(
-    roomId: string,
-    startAt: Date,
-    endAt: Date,
-  ): Promise<boolean> {
-    const booking = await this.bookingModel
-      .findOne()
-      .and([
-        { room: roomId },
-        { checkInAt: { $lt: endAt } },
-        { checkOutAt: { $gt: startAt } },
-      ]);
+    room = await this.roomModel
+      .findOneAndUpdate(
+        { _id: bookingProps.roomId, __v: room.__v },
+        { $push: { bookings: booking }, $inc: { __v: 1 } },
+        { new: true },
+      )
+      .populate('hotel')
+      .populate({ path: 'bookings.guest', model: GuestModel.name });
 
-    return !!booking;
+    if (!room) {
+      await booking.deleteOne();
+      throw new HttpException('Room state is not updated', HttpStatus.CONFLICT);
+    }
+
+    return mapBookingModel(room.bookings.at(-1), room);
   }
 }

@@ -9,7 +9,7 @@ export function mapRoomModel(roomModel: RoomModel): Room {
     name: roomModel.name,
     identifier: roomModel.identifier,
     maxGuests: roomModel.maxGuests,
-    oldPriceCents: roomModel.oldPriceCents,
+    basePriceCents: roomModel.basePriceCents,
     priceCents: roomModel.priceCents,
   });
 }

@@ -7,7 +7,7 @@ export class RoomSeed {
       name: 'Room Name',
       identifier: '1203',
       maxGuests: 2,
-      oldPriceCents: 18000,
+      basePriceCents: 18000,
       priceCents: 13000,
     };
 

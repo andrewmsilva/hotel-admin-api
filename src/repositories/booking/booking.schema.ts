@@ -4,7 +4,6 @@ import { randomUUID } from 'crypto';
 import { Types } from 'mongoose';
 import { Booking } from 'src/entities/booking.entity';
 import { GuestModel } from '../guest/guest.schema';
-import { RoomModel } from '../room/room.schema';
 
 @Schema({ collection: 'bookings' })
 export class BookingModel implements Omit<Booking, 'id' | 'guest' | 'room'> {
@@ -15,15 +14,17 @@ export class BookingModel implements Omit<Booking, 'id' | 'guest' | 'room'> {
   @Type(() => GuestModel)
   guest: GuestModel;
 
-  @Prop({ required: true, type: Types.ObjectId, ref: RoomModel.name })
-  @Type(() => RoomModel)
-  room: RoomModel;
-
   @Prop({ required: true })
   checkInAt: Date;
 
   @Prop({ required: true })
   checkOutAt: Date;
+
+  @Prop({ required: true })
+  priceCents: number;
+
+  @Prop({ required: true })
+  totalCents: number;
 }
 
 export const BookingSchema = SchemaFactory.createForClass(BookingModel);

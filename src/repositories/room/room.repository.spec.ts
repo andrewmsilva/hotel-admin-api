@@ -104,7 +104,7 @@ describe('RoomRepository', () => {
       name: roomProps.name,
       identifier: roomProps.identifier,
       maxGuests: roomProps.maxGuests,
-      oldPriceCents: roomProps.oldPriceCents,
+      basePriceCents: roomProps.basePriceCents,
       priceCents: roomProps.priceCents,
     });
   }

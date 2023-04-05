@@ -9,7 +9,7 @@ export class Room {
   identifier: string;
   maxGuests: number;
 
-  oldPriceCents?: number;
+  basePriceCents?: number;
   priceCents: number;
 
   constructor(props: Room) {
@@ -18,7 +18,7 @@ export class Room {
     this.name = props.name;
     this.identifier = props.identifier;
     this.maxGuests = props.maxGuests;
-    this.oldPriceCents = props.oldPriceCents;
+    this.basePriceCents = props.basePriceCents;
     this.priceCents = props.priceCents;
   }
 }
