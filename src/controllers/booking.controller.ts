@@ -19,6 +19,9 @@ export class BookingController {
   @Post()
   @HttpCode(HttpStatus.CREATED)
   createUser(@Body() bookingProps: CreateBookingDTO): Promise<Booking> {
+    bookingProps.checkInAt = new Date(bookingProps.checkInAt);
+    bookingProps.checkOutAt = new Date(bookingProps.checkOutAt);
+
     return this.createBookingUseCase.execute(bookingProps);
   }
 }

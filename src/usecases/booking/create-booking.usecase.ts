@@ -4,6 +4,7 @@ import { BookingRepository } from 'src/repositories/booking/booking.repository';
 import { GuestRepository } from 'src/repositories/guest/guest.repository';
 import { RoomRepository } from 'src/repositories/room/room.repository';
 import { CreateBookingDTO } from './create-booking.dto';
+import { DateTime } from 'luxon';
 
 @Injectable()
 export class CreateBookingUseCase {
@@ -24,20 +25,16 @@ export class CreateBookingUseCase {
       throw new HttpException('Room not found', HttpStatus.NOT_FOUND);
     }
 
-    const isRoomAvailable =
-      !(await this.bookingRepository.existOneWithOverlappingDatesByRoom(
-        bookingDto.roomId,
-        bookingDto.checkInAt,
-        bookingDto.checkOutAt,
-      ));
+    const checkInAt = DateTime.fromJSDate(bookingDto.checkInAt);
+    const checkOutAt = DateTime.fromJSDate(bookingDto.checkOutAt);
+    const bookingDays = Math.floor(checkOutAt.diff(checkInAt, 'days').days);
 
-    if (!isRoomAvailable) {
-      throw new HttpException(
-        'Room is unavailable in the chosen date interval',
-        HttpStatus.CONFLICT,
-      );
-    }
+    const totalCents = bookingDays * room.priceCents;
 
-    return this.bookingRepository.create({ ...bookingDto, room, guest });
+    return this.bookingRepository.createWithoutOverlapping({
+      ...bookingDto,
+      priceCents: room.priceCents,
+      totalCents,
+    });
   }
 }

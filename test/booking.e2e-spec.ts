@@ -102,21 +102,41 @@ describe('BookingController (e2e)', () => {
 
       const booking = res.body;
 
-      expect(isUUID(booking.id)).toBe(true);
-      expect(booking).toEqual({
-        id: booking.id,
-        room: { ...room, hotel: { ...hotel } },
-        guest: { ...guest },
-        checkInAt: bookingDto.checkInAt.toISOString(),
-        checkOutAt: bookingDto.checkOutAt.toISOString(),
+      checkCreatedBooking(booking);
+    });
+
+    it('should book a room once and throw concurrency error when booking at the same time', async () => {
+      const responses = await Promise.all([
+        createBookingRequest().send(bookingDto),
+        createBookingRequest().send(bookingDto),
+        createBookingRequest().send(bookingDto),
+        createBookingRequest().send(bookingDto),
+      ]);
+
+      let fulfilledCount = 0;
+      let rejectedCount = 0;
+
+      responses.map((res) => {
+        if (res.status === HttpStatus.CREATED) {
+          fulfilledCount++;
+          const booking = res.body;
+
+          checkCreatedBooking(booking);
+        } else {
+          rejectedCount++;
+          expect(res.body.statusCode).toBe(HttpStatus.CONFLICT);
+        }
       });
+
+      expect(fulfilledCount).toBe(1);
+      expect(rejectedCount).toBe(responses.length - 1);
     });
 
     it('should throw conflict error if date interval is overlapping another booking', async () => {
-      await bookingRepository.create(
+      await bookingRepository.createWithoutOverlapping(
         seed.booking.createProps({
-          room,
-          guest,
+          roomId: room.id,
+          guestId: guest.id,
           checkInAt: DateTime.fromJSDate(bookingDto.checkInAt)
             .minus({ days: 2 })
             .toJSDate(),
@@ -169,5 +189,18 @@ describe('BookingController (e2e)', () => {
           message: 'Unauthorized',
         });
     });
+
+    function checkCreatedBooking(booking: any) {
+      expect(isUUID(booking.id)).toBe(true);
+      expect(booking).toEqual({
+        id: booking.id,
+        room: { ...room, hotel: { ...hotel } },
+        guest: { ...guest },
+        checkInAt: bookingDto.checkInAt.toISOString(),
+        checkOutAt: bookingDto.checkOutAt.toISOString(),
+        priceCents: room.priceCents,
+        totalCents: room.priceCents * seed.booking.bookingDays,
+      });
+    }
   });
 });
