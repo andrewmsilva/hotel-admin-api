@@ -6,19 +6,15 @@ import { Model } from 'mongoose';
 import { HttpException, HttpStatus } from '@nestjs/common';
 import { GuestRepository } from './guest.repository';
 import { GuestModel, GuestSchema } from './guest.schema';
-import { Gender, Guest, GuestProps } from 'src/entities/guest.entity';
+import { Guest } from 'src/entities/guest.entity';
+import { Seed } from 'src/seeds/seed';
 
 describe('GuestRepository', () => {
   let guestRepository: GuestRepository;
   let guestModel: Model<GuestModel>;
 
-  const guestProps: GuestProps = {
-    firstName: 'Firstname',
-    lastName: 'Lastname',
-    email: 'firstname@gmail.com',
-    phone: '+5511922223333',
-    gender: Gender.Other,
-  };
+  const seed = new Seed();
+  const guestProps = seed.guest.createProps();
 
   beforeEach(async () => {
     const testModule = await Test.createTestingModule({

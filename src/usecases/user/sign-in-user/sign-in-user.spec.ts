@@ -1,29 +1,23 @@
 import { Test } from '@nestjs/testing';
 import { randomUUID } from 'crypto';
-import { User, UserCredentials, UserProps } from 'src/entities/user.entity';
+import { User, UserCredentials } from 'src/entities/user.entity';
 import { UserRepository } from 'src/repositories/user/user.repository';
 import { AuthorizationRepository } from 'src/repositories/authorization/authorization.repository';
 import { JwtModule, JwtService } from '@nestjs/jwt';
 import { SignInUserUseCase } from './sign-in-user.usecase';
-import * as bcrypt from 'bcrypt';
 import { isJWT } from 'class-validator';
 import { ConfigModule } from '@nestjs/config';
 import { HttpException, HttpStatus } from '@nestjs/common';
+import { Seed } from 'src/seeds/seed';
 
 describe('SignInUserUseCase', () => {
   let signInUserUseCase: SignInUserUseCase;
+  const seed = new Seed();
 
+  const userProps = seed.user.createProps();
   const credentials: UserCredentials = {
-    email: 'firstname@gmail.com',
-    password: 'Strong123!',
-  };
-
-  const uuid = randomUUID();
-  const userProps: UserProps = {
-    firstName: 'Firstname',
-    lastName: 'Lastname',
-    email: credentials.email,
-    password: bcrypt.hashSync(credentials.password, 10),
+    email: userProps.email,
+    password: seed.user.defaultPassword,
   };
 
   let repositoryResult: [User, string];
@@ -52,7 +46,7 @@ describe('SignInUserUseCase', () => {
     signInUserUseCase = testModule.get<SignInUserUseCase>(SignInUserUseCase);
 
     repositoryResult = [
-      new User({ id: uuid, ...userProps }),
+      new User({ id: randomUUID(), ...userProps }),
       userProps.password,
     ];
   });

@@ -4,6 +4,7 @@ import { JwtModule, JwtService } from '@nestjs/jwt';
 import { AuthorizationRepository } from './authorization.repository';
 import * as bcrypt from 'bcrypt';
 import { AccessTokenPayload } from 'src/entities/access-token.entity';
+import { randomUUID } from 'crypto';
 
 describe('AuthorizationRepository', () => {
   let authorizationRepository: AuthorizationRepository;
@@ -13,7 +14,7 @@ describe('AuthorizationRepository', () => {
   let expiresIn: string;
 
   const userPayload: AccessTokenPayload = {
-    id: '4872ed56-a765-46cb-9e5a-410cc35249e7',
+    id: randomUUID(),
     firstName: 'Firstname',
     email: 'firstname@gmail.com',
   };

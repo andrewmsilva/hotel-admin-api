@@ -1,5 +1,5 @@
 import { Test } from '@nestjs/testing';
-import { User, UserProps } from 'src/entities/user.entity';
+import { User } from 'src/entities/user.entity';
 import { UserRepository } from './user.repository';
 import { MongooseModule } from '@nestjs/mongoose';
 import { UserModel, UserSchema } from './user.schema';
@@ -7,20 +7,15 @@ import { ConfigModule } from '@nestjs/config';
 import { isUUID } from 'class-validator';
 import { Model } from 'mongoose';
 import { HttpException, HttpStatus } from '@nestjs/common';
-import * as bcrypt from 'bcrypt';
 import { JwtModule } from '@nestjs/jwt';
+import { Seed } from 'src/seeds/seed';
 
 describe('UserRepository', () => {
   let userRepository: UserRepository;
   let userModel: Model<UserModel>;
 
-  const password = 'Strong123!';
-  const userProps: UserProps = {
-    firstName: 'Firstname',
-    lastName: 'Lastname',
-    email: 'firstname@gmail.com',
-    password: bcrypt.hashSync(password, 10),
-  };
+  const seed = new Seed();
+  const userProps = seed.user.createProps();
 
   beforeEach(async () => {
     const testModule = await Test.createTestingModule({

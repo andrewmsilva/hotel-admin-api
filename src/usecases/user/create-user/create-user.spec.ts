@@ -6,17 +6,14 @@ import * as bcrypt from 'bcrypt';
 import { UserRepository } from 'src/repositories/user/user.repository';
 import { AuthorizationRepository } from 'src/repositories/authorization/authorization.repository';
 import { JwtModule } from '@nestjs/jwt';
+import { Seed } from 'src/seeds/seed';
 
 describe('CreateUserUseCase', () => {
   let createUserUseCase: CreateUserUseCase;
+  const seed = new Seed();
 
   const uuid = randomUUID();
-  const userProps: UserProps = {
-    firstName: 'Firstname',
-    lastName: 'Lastname',
-    email: 'firstname@gmail.com',
-    password: 'Strong123!',
-  };
+  const userProps = seed.user.createProps({ password: 'Strong123!' });
 
   beforeEach(async () => {
     const testModule = await Test.createTestingModule({

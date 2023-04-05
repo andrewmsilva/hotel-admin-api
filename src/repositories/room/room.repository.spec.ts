@@ -10,12 +10,14 @@ import { Hotel } from 'src/entities/hotel.entity';
 import { HotelModel, HotelSchema } from '../hotel/hotel.schema';
 import { HotelRepository } from '../hotel/hotel.repository';
 import { HttpException, HttpStatus } from '@nestjs/common';
+import { Seed } from 'src/seeds/seed';
 
 describe('RoomRepository', () => {
   let roomRepository: RoomRepository;
   let roomModel: Model<RoomModel>;
   let hotelModel: Model<HotelModel>;
 
+  const seed = new Seed();
   let hotel: Hotel;
   let roomProps: RoomProps;
 
@@ -36,22 +38,9 @@ describe('RoomRepository', () => {
 
     const hotelRepository = testModule.get<HotelRepository>(HotelRepository);
     hotelModel = (hotelRepository as any).hotelModel;
-    hotel = await hotelRepository.create({
-      name: 'Hotel Name',
-      stars: 4.5,
-      email: 'hotel@gmail.com',
-      phone: '+5511922223333',
-      address: 'Rua Abobrinha, 123, Cidade',
-    });
+    hotel = await hotelRepository.create(seed.hotel.createProps());
 
-    roomProps = {
-      hotelId: hotel.id,
-      name: 'Room Name',
-      identifier: '1203',
-      maxGuests: 2,
-      oldPriceCents: 18000,
-      priceCents: 13000,
-    };
+    roomProps = seed.room.createProps({ hotelId: hotel.id });
 
     roomRepository = testModule.get<RoomRepository>(RoomRepository);
     roomModel = (roomRepository as any).roomModel;
