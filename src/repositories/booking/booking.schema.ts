@@ -18,7 +18,7 @@ export class BookingModel implements Omit<Booking, 'id' | 'guest' | 'room'> {
   status: BookingStatus;
 
   @Prop()
-  receipt?: string;
+  receiptFileName?: string;
 
   @Prop({ required: true })
   checkInAt: Date;

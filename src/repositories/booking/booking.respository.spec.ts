@@ -34,6 +34,7 @@ describe('BookingRepository', () => {
   let room: Room;
   let guest: Guest;
   let bookingProps: BookingProps;
+  let existentBooking: BookingModel;
 
   const seed = new Seed();
 
@@ -128,8 +129,6 @@ describe('BookingRepository', () => {
     });
 
     describe('overlapping tests', () => {
-      let existentBooking: BookingModel;
-
       beforeEach(async () => {
         const existentGuest = await guestModel.findById(guest.id);
 
@@ -206,20 +205,51 @@ describe('BookingRepository', () => {
         checkBooking(booking);
       });
     });
-
-    function checkBooking(booking: Booking) {
-      expect(booking.constructor.name).toBe(Booking.name);
-      expect(isUUID(booking.id)).toBe(true);
-      expect(booking).toEqual({
-        id: booking.id,
-        guest,
-        room,
-        status: BookingStatus.Created,
-        checkInAt: bookingProps.checkInAt,
-        checkOutAt: bookingProps.checkOutAt,
-        priceCents: bookingProps.priceCents,
-        totalCents: bookingProps.totalCents,
-      });
-    }
   });
+
+  describe('setReceiptById', () => {
+    const receiptFileName = 'receipt-file-name';
+
+    beforeEach(async () => {
+      const existentGuest = await guestModel.findById(guest.id);
+
+      existentBooking = await bookingModel.create({
+        ...bookingProps,
+        guest: existentGuest,
+      });
+    });
+
+    it('should set booking receipt and chage its status to Confirmed', async () => {
+      const isConfirmed = await bookingRepository.setReceiptById(
+        existentBooking._id,
+        receiptFileName,
+      );
+
+      expect(isConfirmed).toBe(true);
+    });
+
+    it('should return false if booking does not exist', async () => {
+      const isConfirmed = await bookingRepository.setReceiptById(
+        'other-uuid-here',
+        receiptFileName,
+      );
+
+      expect(isConfirmed).toBe(false);
+    });
+  });
+
+  function checkBooking(booking: Booking) {
+    expect(booking.constructor.name).toBe(Booking.name);
+    expect(isUUID(booking.id)).toBe(true);
+    expect(booking).toEqual({
+      id: booking.id,
+      guest,
+      room,
+      status: BookingStatus.Created,
+      checkInAt: bookingProps.checkInAt,
+      checkOutAt: bookingProps.checkOutAt,
+      priceCents: bookingProps.priceCents,
+      totalCents: bookingProps.totalCents,
+    });
+  }
 });

@@ -1,7 +1,11 @@
 import { HttpException, HttpStatus, Injectable } from '@nestjs/common';
 import { InjectModel } from '@nestjs/mongoose';
 import { Model } from 'mongoose';
-import { Booking, BookingProps } from 'src/entities/booking.entity';
+import {
+  Booking,
+  BookingProps,
+  BookingStatus,
+} from 'src/entities/booking.entity';
 import { GuestModel } from '../guest/guest.schema';
 import { RoomModel } from '../room/room.schema';
 import { mapBookingModel } from './booking.mapper';
@@ -58,5 +62,21 @@ export class BookingRepository {
     }
 
     return mapBookingModel(room.bookings.at(-1), room);
+  }
+
+  async setReceiptById(
+    bookingId: string,
+    receiptFileName: string,
+  ): Promise<boolean> {
+    const booking = await this.bookingModel.findOneAndUpdate(
+      { _id: bookingId },
+      { receiptFileName, status: BookingStatus.Confirmed },
+      { new: true },
+    );
+
+    return (
+      booking?.receiptFileName === receiptFileName &&
+      booking?.status === BookingStatus.Confirmed
+    );
   }
 }
