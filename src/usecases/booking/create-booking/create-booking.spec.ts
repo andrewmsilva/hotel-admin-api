@@ -7,7 +7,7 @@ import { RoomRepository } from 'src/repositories/room/room.repository';
 import { Room } from 'src/entities/room.entity';
 import { CreateBookingDTO } from './create-booking.dto';
 import { Hotel } from 'src/entities/hotel.entity';
-import { Booking } from 'src/entities/booking.entity';
+import { Booking, BookingStatus } from 'src/entities/booking.entity';
 import { HttpException, HttpStatus } from '@nestjs/common';
 import { Seed } from 'src/seeds/seed';
 import { Guest } from 'src/entities/guest.entity';
@@ -75,6 +75,7 @@ describe('CreateBookingUseCase', () => {
       id: randomUUID(),
       room: existentRoom,
       guest: existentGuest,
+      status: BookingStatus.Created,
       checkInAt: bookingProps.checkInAt,
       checkOutAt: bookingProps.checkOutAt,
       priceCents: existentRoom.priceCents,

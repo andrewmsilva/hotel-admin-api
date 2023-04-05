@@ -17,9 +17,11 @@ import { Seed } from 'src/seeds/seed';
 import { Hotel } from 'src/entities/hotel.entity';
 import { Room } from 'src/entities/room.entity';
 import { Guest } from 'src/entities/guest.entity';
-import { CreateBookingDTO } from 'src/usecases/booking/create-booking.dto';
 import { isUUID } from 'class-validator';
 import { DateTime } from 'luxon';
+import { CreateBookingDTO } from 'src/usecases/booking/create-booking/create-booking.dto';
+import { BookingStatus } from 'src/entities/booking.entity';
+import * as path from 'path';
 
 describe('BookingController (e2e)', () => {
   let app: INestApplication;
@@ -196,11 +198,85 @@ describe('BookingController (e2e)', () => {
         id: booking.id,
         room: { ...room, hotel: { ...hotel } },
         guest: { ...guest },
+        status: BookingStatus.Created,
         checkInAt: bookingDto.checkInAt.toISOString(),
         checkOutAt: bookingDto.checkOutAt.toISOString(),
         priceCents: room.priceCents,
         totalCents: room.priceCents * seed.booking.bookingDays,
       });
+    }
+  });
+
+  describe('/booking/confirm (PUT)', () => {
+    const receiptJpg = path.resolve(
+      __dirname,
+      './receipt-examples/receipt.jpg',
+    );
+    const receiptJpeg = path.resolve(
+      __dirname,
+      './receipt-examples/receipt.jpeg',
+    );
+    const receiptPng = path.resolve(
+      __dirname,
+      './receipt-examples/receipt.png',
+    );
+    const receiptPdf = path.resolve(
+      __dirname,
+      './receipt-examples/receipt.pdf',
+    );
+
+    let existentBooking: BookingModel;
+
+    beforeEach(async () => {
+      existentBooking = await bookingModel.create({
+        ...seed.booking.createProps(),
+        guest,
+      });
+    });
+
+    function creatingConfirmRequest() {
+      return request(app.getHttpServer())
+        .put('/booking/confirm')
+        .set('Authorization', accessToken)
+        .field('bookingId', existentBooking._id);
+    }
+
+    it('should send receipt in JPG and confirm booking', async () => {
+      await creatingConfirmRequest()
+        .attach('receipt', receiptJpg)
+        .expect(HttpStatus.OK);
+
+      await checkBookingConfirmation();
+    });
+
+    it('should send receipt in JPEG and confirm booking', async () => {
+      await creatingConfirmRequest()
+        .attach('receipt', receiptJpeg)
+        .expect(HttpStatus.OK);
+
+      await checkBookingConfirmation();
+    });
+
+    it('should send receipt in PNG and confirm booking', async () => {
+      await creatingConfirmRequest()
+        .attach('receipt', receiptPng)
+        .expect(HttpStatus.OK);
+
+      await checkBookingConfirmation();
+    });
+
+    it('should send receipt in PDF and confirm booking', async () => {
+      await creatingConfirmRequest()
+        .attach('receipt', receiptPdf)
+        .expect(HttpStatus.OK);
+
+      await checkBookingConfirmation();
+    });
+
+    async function checkBookingConfirmation() {
+      const booking = await bookingModel.findById(existentBooking._id);
+      expect(booking.status).toBe(BookingStatus.Confirmed);
+      expect(booking.receiptFileName).toBeTruthy();
     }
   });
 });
