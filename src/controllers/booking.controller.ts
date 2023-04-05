@@ -51,9 +51,6 @@ export class BookingController {
     receipt: Express.Multer.File,
     @Body() bookingProps: ConfirmBookingDTO,
   ) {
-    console.log(receipt);
-    console.log(bookingProps);
-
     return this.addReceiptUseCase.execute({
       ...bookingProps,
       fileName: receipt.filename,
