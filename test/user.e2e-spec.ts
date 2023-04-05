@@ -9,18 +9,15 @@ import { UserModel } from 'src/repositories/user/user.schema';
 import { AuthorizationRepository } from 'src/repositories/authorization/authorization.repository';
 import { AccessToken } from 'src/entities/access-token.entity';
 import { randomUUID } from 'crypto';
+import { Seed } from 'src/seeds/seed';
 
 describe('UserController (e2e)', () => {
   let app: INestApplication;
   let authorizationRepository: AuthorizationRepository;
   let userModel: Model<UserModel>;
 
-  const userProps = {
-    firstName: 'Firstname',
-    lastName: 'Lastname',
-    email: 'firstname@gmail.com',
-    password: 'Strong123!',
-  };
+  const seed = new Seed();
+  const userProps = seed.user.createProps({ password: 'Strong123!' });
 
   beforeEach(async () => {
     const moduleFixture: TestingModule = await Test.createTestingModule({

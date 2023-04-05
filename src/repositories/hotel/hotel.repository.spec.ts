@@ -5,19 +5,15 @@ import { isUUID } from 'class-validator';
 import { Model } from 'mongoose';
 import { HotelRepository } from './hotel.repository';
 import { HotelModel, HotelSchema } from './hotel.schema';
-import { Hotel, HotelProps } from 'src/entities/hotel.entity';
+import { Hotel } from 'src/entities/hotel.entity';
+import { Seed } from 'src/seeds/seed';
 
 describe('HotelRepository', () => {
   let hotelRepository: HotelRepository;
   let hotelModel: Model<HotelModel>;
 
-  const hotelProps: HotelProps = {
-    name: 'Hotel Name',
-    stars: 4.5,
-    email: 'hotel@gmail.com',
-    phone: '+5511922223333',
-    address: 'Rua Abobrinha, 123, Cidade',
-  };
+  const seed = new Seed();
+  const hotelProps = seed.hotel.createProps();
 
   beforeEach(async () => {
     const testModule = await Test.createTestingModule({

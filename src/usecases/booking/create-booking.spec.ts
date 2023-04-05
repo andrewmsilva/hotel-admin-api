@@ -4,16 +4,17 @@ import { CreateBookingUseCase } from './create-booking.usecase';
 import { BookingRepository } from 'src/repositories/booking/booking.repository';
 import { GuestRepository } from 'src/repositories/guest/guest.repository';
 import { RoomRepository } from 'src/repositories/room/room.repository';
-import { Gender, Guest } from 'src/entities/guest.entity';
 import { Room } from 'src/entities/room.entity';
 import { CreateBookingDTO } from './create-booking.dto';
 import { Hotel } from 'src/entities/hotel.entity';
 import { Booking } from 'src/entities/booking.entity';
-import { DateTime } from 'luxon';
 import { HttpException, HttpStatus } from '@nestjs/common';
+import { Seed } from 'src/seeds/seed';
+import { Guest } from 'src/entities/guest.entity';
 
 describe('CreateBookingUseCase', () => {
   let createBookingUseCase: CreateBookingUseCase;
+  const seed = new Seed();
 
   let existentGuest: Guest;
   let existentRoom: Room;
@@ -46,37 +47,21 @@ describe('CreateBookingUseCase', () => {
 
     existentGuest = new Guest({
       id: randomUUID(),
-      firstName: 'Firstname',
-      lastName: 'Lastname',
-      email: 'firstname@gmail.com',
-      phone: '+5511922223333',
-      gender: Gender.Other,
+      ...seed.guest.createProps(),
     });
 
     existentRoom = new Room({
       id: randomUUID(),
-      name: 'Name',
-      identifier: '1208',
-      maxGuests: 2,
-      oldPriceCents: 15000,
-      priceCents: 12000,
-      hotel: new Hotel({
-        id: randomUUID(),
-        name: 'Hotel Name',
-        stars: 4.5,
-        email: 'hotel@gmail.com',
-        phone: '+5511922223333',
-        address: 'Rua Abobrinha, 123, Cidade',
-      }),
+      ...seed.room.createProps(),
+      hotel: new Hotel({ id: randomUUID(), ...seed.hotel.createProps() }),
     });
 
     isRoomAvailable = true;
 
     bookingProps = {
+      ...seed.booking.createProps(),
       roomId: existentRoom.id,
       guestId: existentGuest.id,
-      checkInAt: DateTime.now().plus({ days: 5 }).toJSDate(),
-      checkOutAt: DateTime.now().plus({ days: 10 }).toJSDate(),
     };
 
     createdBooking = new Booking({

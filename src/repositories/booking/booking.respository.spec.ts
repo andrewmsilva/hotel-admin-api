@@ -14,8 +14,9 @@ import { GuestModel, GuestSchema } from '../guest/guest.schema';
 import { RoomRepository } from '../room/room.repository';
 import { GuestRepository } from '../guest/guest.repository';
 import { Room } from 'src/entities/room.entity';
-import { Gender, Guest } from 'src/entities/guest.entity';
+import { Guest } from 'src/entities/guest.entity';
 import { DateTime } from 'luxon';
+import { Seed } from 'src/seeds/seed';
 
 describe('BookingRepository', () => {
   let bookingRepository: BookingRepository;
@@ -28,6 +29,8 @@ describe('BookingRepository', () => {
   let room: Room;
   let guest: Guest;
   let bookingProps: BookingProps;
+
+  const seed = new Seed();
 
   beforeEach(async () => {
     const testModule = await Test.createTestingModule({
@@ -53,34 +56,17 @@ describe('BookingRepository', () => {
 
     const hotelRepository = testModule.get<HotelRepository>(HotelRepository);
     hotelModel = (hotelRepository as any).hotelModel;
-    hotel = await hotelRepository.create({
-      name: 'Hotel Name',
-      stars: 4.5,
-      email: 'hotel@gmail.com',
-      phone: '+5511922223333',
-      address: 'Rua Abobrinha, 123, Cidade',
-    });
+    hotel = await hotelRepository.create(seed.hotel.createProps());
 
     const roomRepository = testModule.get<RoomRepository>(RoomRepository);
     roomModel = (roomRepository as any).roomModel;
-    room = await roomRepository.create({
-      hotelId: hotel.id,
-      name: 'Room Name',
-      identifier: '1203',
-      maxGuests: 2,
-      oldPriceCents: 18000,
-      priceCents: 13000,
-    });
+    room = await roomRepository.create(
+      seed.room.createProps({ hotelId: hotel.id }),
+    );
 
     const guestRepository = testModule.get<GuestRepository>(GuestRepository);
     guestModel = (guestRepository as any).guestModel;
-    guest = await guestRepository.create({
-      firstName: 'Firstname',
-      lastName: 'Lastname',
-      email: 'firstname@gmail.com',
-      phone: '+5511922223333',
-      gender: Gender.Other,
-    });
+    guest = await guestRepository.create(seed.guest.createProps());
 
     bookingRepository = testModule.get<BookingRepository>(BookingRepository);
     bookingModel = (bookingRepository as any).bookingModel;
