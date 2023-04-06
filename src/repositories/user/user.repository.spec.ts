@@ -109,7 +109,7 @@ describe('UserRepository', () => {
       checkUser(user, valueCents);
     });
 
-    it('should find user and add to its balance', async () => {
+    it('should find user and add to its balance once with optimistic concurrency', async () => {
       const existentUser = await userModel.create(userProps);
 
       const promises = await Promise.all([
@@ -128,6 +128,31 @@ describe('UserRepository', () => {
           expect(user).toBeNull;
         }
       });
+    });
+
+    it('should find user and subtract to its balance', async () => {
+      const existentUser = await userModel.create({
+        ...userProps,
+        balanceCents: valueCents,
+      });
+
+      const user = await userRepository.findOneAndAddToBalance(
+        existentUser._id,
+        -valueCents,
+      );
+
+      checkUser(user, 0);
+    });
+
+    it('should return null if user balance would be negative after changing', async () => {
+      const existentUser = await userModel.create(userProps);
+
+      const user = await userRepository.findOneAndAddToBalance(
+        existentUser._id,
+        -valueCents,
+      );
+
+      expect(user).toBeNull;
     });
 
     it('should return null if user does not exist', async () => {

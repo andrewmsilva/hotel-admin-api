@@ -4,6 +4,7 @@ import { User } from './user.entity';
 export enum BookingStatus {
   Created = 'Created',
   Confirmed = 'Confirmed',
+  Concluded = 'Concluded',
 }
 
 export class Booking {

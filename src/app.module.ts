@@ -24,6 +24,7 @@ import { ConfirmBookingUseCase } from './usecases/booking/confirm-booking/confir
 import { SharingRepository } from './repositories/sharing/sharing.repository';
 import { GetBookingConfirmationUseCase } from './usecases/booking/get-booking-confirmation/get-booking-confirmation.usecase';
 import { AddToBalanceUseCase } from './usecases/user/add-to-balance/add-to-balance.usecase';
+import { CheckInUseCase } from './usecases/booking/check-in/check-in.usecase';
 
 const ENV = process.env.NODE_ENV;
 
@@ -58,6 +59,7 @@ const ENV = process.env.NODE_ENV;
     CreateBookingUseCase,
     ConfirmBookingUseCase,
     GetBookingConfirmationUseCase,
+    CheckInUseCase,
   ],
 })
 export class AppModule {}

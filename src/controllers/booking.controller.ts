@@ -21,6 +21,8 @@ import { Response } from 'express';
 import { AccessTokenPayload } from 'src/entities/access-token.entity';
 import { Booking } from 'src/entities/booking.entity';
 import { AuthorizationGuard } from 'src/guards/authorization.guard';
+import { CheckInDTO } from 'src/usecases/booking/check-in/check-in.dto';
+import { CheckInUseCase } from 'src/usecases/booking/check-in/check-in.usecase';
 import { ConfirmBookingDTO } from 'src/usecases/booking/confirm-booking/confirm-booking.dto';
 import { ConfirmBookingUseCase } from 'src/usecases/booking/confirm-booking/confirm-booking.usecase';
 import { CreateBookingDTO } from 'src/usecases/booking/create-booking/create-booking.dto';
@@ -34,6 +36,7 @@ export class BookingController {
     private readonly createBookingUseCase: CreateBookingUseCase,
     private readonly confirmBookingUseCase: ConfirmBookingUseCase,
     private readonly getBookingConfirmationUseCase: GetBookingConfirmationUseCase,
+    private readonly checkInUseCase: CheckInUseCase,
   ) {}
 
   @UseGuards(AuthorizationGuard)
@@ -80,5 +83,15 @@ export class BookingController {
   ) {
     const stream = await this.getBookingConfirmationUseCase.execute(props);
     stream.pipe(res);
+  }
+
+  @UseGuards(AuthorizationGuard)
+  @Put('check-in')
+  @HttpCode(HttpStatus.OK)
+  async checkIn(
+    @Body() bookingProps: CheckInDTO,
+    @Req() { user }: { user: AccessTokenPayload },
+  ) {
+    return this.checkInUseCase.execute(bookingProps, user.id);
   }
 }
