@@ -20,8 +20,9 @@ import { Guest } from 'src/entities/guest.entity';
 import { isUUID } from 'class-validator';
 import { DateTime } from 'luxon';
 import { CreateBookingDTO } from 'src/usecases/booking/create-booking/create-booking.dto';
-import { BookingStatus } from 'src/entities/booking.entity';
+import { Booking, BookingStatus } from 'src/entities/booking.entity';
 import * as path from 'path';
+import { SharingRepository } from 'src/repositories/sharing/sharing.repository';
 
 describe('BookingController (e2e)', () => {
   let app: INestApplication;
@@ -104,7 +105,7 @@ describe('BookingController (e2e)', () => {
 
       const booking = res.body;
 
-      checkCreatedBooking(booking);
+      checkBooking(booking);
     });
 
     it('should book a room once and throw concurrency error when booking at the same time', async () => {
@@ -123,7 +124,7 @@ describe('BookingController (e2e)', () => {
           fulfilledCount++;
           const booking = res.body;
 
-          checkCreatedBooking(booking);
+          checkBooking(booking);
         } else {
           rejectedCount++;
           expect(res.body.statusCode).toBe(HttpStatus.CONFLICT);
@@ -191,20 +192,6 @@ describe('BookingController (e2e)', () => {
           message: 'Unauthorized',
         });
     });
-
-    function checkCreatedBooking(booking: any) {
-      expect(isUUID(booking.id)).toBe(true);
-      expect(booking).toEqual({
-        id: booking.id,
-        room: { ...room, hotel: { ...hotel } },
-        guest: { ...guest },
-        status: BookingStatus.Created,
-        checkInAt: bookingDto.checkInAt.toISOString(),
-        checkOutAt: bookingDto.checkOutAt.toISOString(),
-        priceCents: room.priceCents,
-        totalCents: room.priceCents * seed.booking.bookingDays,
-      });
-    }
   });
 
   describe('/booking/confirm (PUT)', () => {
@@ -249,41 +236,93 @@ describe('BookingController (e2e)', () => {
     }
 
     it('should send receipt in JPG and confirm booking', async () => {
-      await creatingConfirmRequest()
+      const res = await creatingConfirmRequest()
         .attach('receipt', receiptJpg)
         .expect(HttpStatus.OK);
 
-      await checkBookingConfirmation();
+      const booking = res.body;
+      checkBooking(booking, BookingStatus.Confirmed);
     });
 
     it('should send receipt in JPEG and confirm booking', async () => {
-      await creatingConfirmRequest()
+      const res = await creatingConfirmRequest()
         .attach('receipt', receiptJpeg)
         .expect(HttpStatus.OK);
 
-      await checkBookingConfirmation();
+      const booking = res.body;
+      checkBooking(booking, BookingStatus.Confirmed);
     });
 
     it('should send receipt in PNG and confirm booking', async () => {
-      await creatingConfirmRequest()
+      const res = await creatingConfirmRequest()
         .attach('receipt', receiptPng)
         .expect(HttpStatus.OK);
 
-      await checkBookingConfirmation();
+      const booking = res.body;
+      checkBooking(booking, BookingStatus.Confirmed);
     });
 
     it('should send receipt in PDF and confirm booking', async () => {
-      await creatingConfirmRequest()
+      const res = await creatingConfirmRequest()
         .attach('receipt', receiptPdf)
         .expect(HttpStatus.OK);
 
-      await checkBookingConfirmation();
+      const booking = res.body;
+      checkBooking(booking, BookingStatus.Confirmed);
+    });
+  });
+
+  describe('/booking/confirm (GET)', () => {
+    let existentBooking: Booking;
+
+    beforeEach(async () => {
+      existentBooking = new Booking({
+        ...seed.booking.createProps(),
+        id: randomUUID(),
+        status: BookingStatus.Confirmed,
+        guest,
+        room,
+      });
+
+      const sharingRepository = app.get<SharingRepository>(SharingRepository);
+      await sharingRepository.createBookingConfirmationPdf(existentBooking);
     });
 
-    async function checkBookingConfirmation() {
-      const booking = await bookingModel.findById(existentBooking._id);
-      expect(booking.status).toBe(BookingStatus.Confirmed);
-      expect(booking.receiptFileName).toBeTruthy();
-    }
+    it('should download generated pdf', async () => {
+      const res = await request(app.getHttpServer())
+        .get('/booking/confirm/' + existentBooking.id)
+        .set('Authorization', accessToken)
+        .expect(HttpStatus.OK);
+
+      expect(res.headers['content-type']).toBe('application/pdf');
+    });
+
+    it('should throw bad request error if given id is invalid', async () => {
+      await request(app.getHttpServer())
+        .get('/booking/confirm/uuid-here')
+        .set('Authorization', accessToken)
+        .expect(HttpStatus.BAD_REQUEST);
+    });
+
+    it('should throw not found error if file does not exist', async () => {
+      await request(app.getHttpServer())
+        .get('/booking/confirm/' + randomUUID())
+        .set('Authorization', accessToken)
+        .expect(HttpStatus.NOT_FOUND);
+    });
   });
+
+  function checkBooking(booking: Booking, status = BookingStatus.Created) {
+    expect(isUUID(booking.id)).toBe(true);
+    expect(booking).toEqual({
+      id: booking.id,
+      room: { ...room, hotel: { ...hotel } },
+      guest: { ...guest },
+      status,
+      checkInAt: bookingDto.checkInAt.toISOString(),
+      checkOutAt: bookingDto.checkOutAt.toISOString(),
+      priceCents: room.priceCents,
+      totalCents: room.priceCents * seed.booking.bookingDays,
+    });
+  }
 });

@@ -1,11 +1,11 @@
 import { Injectable } from '@nestjs/common';
 import { PDFDocument, StandardFonts } from 'pdf-lib';
 import { Booking } from 'src/entities/booking.entity';
-import { Readable } from 'stream';
+import * as fs from 'fs';
 
 @Injectable()
 export class SharingRepository {
-  async createBookingConfirmationPdf(booking: Booking): Promise<Readable> {
+  async createBookingConfirmationPdf(booking: Booking): Promise<void> {
     const room = booking.room;
     const hotel = room.hotel;
     const guest = booking.guest;
@@ -129,11 +129,13 @@ export class SharingRepository {
       font: timesRomanFont,
     });
 
-    const stream = new Readable();
+    confimationPdf.setTitle('Booking Confirmation');
+    confimationPdf.setCreationDate(new Date());
+    confimationPdf.setModificationDate(new Date());
 
-    stream.push(await confimationPdf.save());
-    stream.push(null);
-
-    return stream;
+    fs.writeFileSync(
+      `${process.env.FILE_STORAGE_PATH}/${booking.id}.pdf`,
+      await confimationPdf.save(),
+    );
   }
 }

@@ -24,6 +24,7 @@ import { MulterModule } from '@nestjs/platform-express';
 import { CreateBookingUseCase } from './usecases/booking/create-booking/create-booking.usecase';
 import { ConfirmBookingUseCase } from './usecases/booking/confirm-booking/confirm-booking.usecase';
 import { SharingRepository } from './repositories/sharing/sharing.repository';
+import { GetBookingConfirmationUseCase } from './usecases/booking/get-booking-confirmation/get-booking-confirmation.usecase';
 
 const ENV = process.env.NODE_ENV;
 
@@ -41,7 +42,7 @@ const ENV = process.env.NODE_ENV;
       { name: GuestModel.name, schema: GuestSchema },
       { name: BookingModel.name, schema: BookingSchema },
     ]),
-    MulterModule.register({ dest: './uploads' }),
+    MulterModule.register({ dest: process.env.FILE_STORAGE_PATH }),
   ],
   controllers: [UserController, BookingController],
   providers: [
@@ -58,6 +59,7 @@ const ENV = process.env.NODE_ENV;
     SignInUserUseCase,
     CreateBookingUseCase,
     ConfirmBookingUseCase,
+    GetBookingConfirmationUseCase,
   ],
 })
 export class AppModule {}

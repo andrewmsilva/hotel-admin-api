@@ -38,4 +38,5 @@ lerna-debug.log*
 .env
 
 # File uploads
-/uploads
+/storage
+/test-storage
