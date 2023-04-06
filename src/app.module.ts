@@ -25,6 +25,8 @@ import { SharingRepository } from './repositories/sharing/sharing.repository';
 import { GetBookingConfirmationUseCase } from './usecases/booking/get-booking-confirmation/get-booking-confirmation.usecase';
 import { AddToBalanceUseCase } from './usecases/user/add-to-balance/add-to-balance.usecase';
 import { CheckInUseCase } from './usecases/booking/check-in/check-in.usecase';
+import { CacheInterceptor, CacheModule } from '@nestjs/cache-manager';
+import { APP_INTERCEPTOR } from '@nestjs/core';
 
 const ENV = process.env.NODE_ENV;
 
@@ -42,6 +44,9 @@ const ENV = process.env.NODE_ENV;
       { name: BookingModel.name, schema: BookingSchema },
     ]),
     MulterModule.register({ dest: process.env.FILE_STORAGE_PATH }),
+    CacheModule.register({
+      ttl: 5000, // milliseconds
+    }),
   ],
   controllers: [UserController, BookingController],
   providers: [
@@ -60,6 +65,11 @@ const ENV = process.env.NODE_ENV;
     ConfirmBookingUseCase,
     GetBookingConfirmationUseCase,
     CheckInUseCase,
+    // Others
+    {
+      provide: APP_INTERCEPTOR,
+      useClass: CacheInterceptor,
+    },
   ],
 })
 export class AppModule {}
