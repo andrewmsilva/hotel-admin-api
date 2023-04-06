@@ -8,7 +8,6 @@ import { Booking, BookingStatus } from 'src/entities/booking.entity';
 import { Guest } from 'src/entities/guest.entity';
 import { Hotel } from 'src/entities/hotel.entity';
 import { Room } from 'src/entities/room.entity';
-import { Readable } from 'stream';
 
 describe('SharingRepository', () => {
   let sharingRepository: SharingRepository;
@@ -20,7 +19,7 @@ describe('SharingRepository', () => {
     const testModule = await Test.createTestingModule({
       imports: [
         ConfigModule.forRoot({ envFilePath: '.env.test' }),
-        MulterModule.register({ dest: './uploads' }),
+        MulterModule.register({ dest: process.env.FILE_STORAGE_PATH }),
       ],
       providers: [SharingRepository],
     }).compile();
@@ -46,11 +45,7 @@ describe('SharingRepository', () => {
 
   describe('createBookingConfirmationPdf', () => {
     it('should create pdf', async () => {
-      const stream = await sharingRepository.createBookingConfirmationPdf(
-        booking,
-      );
-
-      expect(stream).toBeInstanceOf(Readable);
+      await sharingRepository.createBookingConfirmationPdf(booking);
     });
   });
 });

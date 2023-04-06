@@ -41,7 +41,7 @@ const ENV = process.env.NODE_ENV;
       { name: GuestModel.name, schema: GuestSchema },
       { name: BookingModel.name, schema: BookingSchema },
     ]),
-    MulterModule.register({ dest: './uploads' }),
+    MulterModule.register({ dest: process.env.FILE_STORAGE_PATH }),
   ],
   controllers: [UserController, BookingController],
   providers: [
