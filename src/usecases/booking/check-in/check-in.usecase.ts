@@ -29,7 +29,7 @@ export class CheckInUseCase {
 
     user = await this.userRepository.findOneAndAddToBalance(
       userId,
-      booking.totalCents,
+      -booking.totalCents,
     );
 
     if (!user) {

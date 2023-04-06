@@ -312,6 +312,67 @@ describe('BookingController (e2e)', () => {
     });
   });
 
+  describe('/booking/chek-in (PUT)', () => {
+    let existentBooking: BookingModel;
+    const newStatus = BookingStatus.Concluded;
+
+    beforeEach(async () => {
+      const existentUser = await userModel.findById(user.id);
+      existentBooking = await bookingModel.create({
+        ...seed.booking.createProps(),
+        user: existentUser,
+      });
+
+      await roomModel.findOneAndUpdate(
+        { _id: room.id },
+        { $push: { bookings: existentBooking } },
+      );
+
+      existentUser.balanceCents = existentBooking.totalCents;
+      await existentUser.save();
+    });
+
+    function checkInRequest() {
+      return request(app.getHttpServer())
+        .put('/booking/check-in/')
+        .set('Authorization', accessToken)
+        .send({ bookingId: existentBooking._id });
+    }
+
+    it('should make check in and pay using user balance', async () => {
+      const res = await checkInRequest().expect(HttpStatus.OK);
+
+      checkBooking(res.body, newStatus);
+    });
+
+    it('should throw not found error if user doed not exist', async () => {
+      await userModel.deleteMany();
+
+      await checkInRequest().expect(HttpStatus.NOT_FOUND).expect({
+        statusCode: HttpStatus.NOT_FOUND,
+        message: 'User not found',
+      });
+    });
+
+    it('should throw not found error if booking doed not exist', async () => {
+      await bookingModel.deleteMany();
+
+      await checkInRequest().expect(HttpStatus.NOT_FOUND).expect({
+        statusCode: HttpStatus.NOT_FOUND,
+        message: 'Booking not found',
+      });
+    });
+
+    it('should throw not found error if booking doed not exist', async () => {
+      await userModel.findOneAndUpdate({ _id: user.id }, { balanceCents: 0 });
+
+      await checkInRequest().expect(HttpStatus.PAYMENT_REQUIRED).expect({
+        statusCode: HttpStatus.PAYMENT_REQUIRED,
+        message: "User don't have enough balance",
+      });
+    });
+  });
+
   function checkBooking(booking: Booking, status = BookingStatus.Created) {
     expect(isUUID(booking.id)).toBe(true);
     expect(booking).toEqual({
