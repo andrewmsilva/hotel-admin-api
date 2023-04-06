@@ -94,13 +94,36 @@ describe('CheckInUseCase', () => {
     );
   });
 
-  it('should throw not found error if user does not exist', async () => {
+  it('should throw not found error if booking does not exist', async () => {
     existentBooking = null;
 
     await expect(
       checkInUseCase.execute({ bookingId: updatedBooking.id }, user.id),
     ).rejects.toThrow(
       new HttpException('Booking not found', HttpStatus.NOT_FOUND),
+    );
+  });
+
+  it('should throw bad request error if booking status is Created', async () => {
+    existentBooking.status = BookingStatus.Created;
+
+    await expect(
+      checkInUseCase.execute({ bookingId: updatedBooking.id }, user.id),
+    ).rejects.toThrow(
+      new HttpException('Booking is not confirmed yet', HttpStatus.BAD_REQUEST),
+    );
+  });
+
+  it('should throw not found error if booking does not exist', async () => {
+    existentBooking.status = BookingStatus.Concluded;
+
+    await expect(
+      checkInUseCase.execute({ bookingId: updatedBooking.id }, user.id),
+    ).rejects.toThrow(
+      new HttpException(
+        'Booking is already checked in',
+        HttpStatus.BAD_REQUEST,
+      ),
     );
   });
 

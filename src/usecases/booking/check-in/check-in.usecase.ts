@@ -27,6 +27,20 @@ export class CheckInUseCase {
       throw new HttpException('Booking not found', HttpStatus.NOT_FOUND);
     }
 
+    if (booking.status === BookingStatus.Created) {
+      throw new HttpException(
+        'Booking is not confirmed yet',
+        HttpStatus.BAD_REQUEST,
+      );
+    }
+
+    if (booking.status === BookingStatus.Concluded) {
+      throw new HttpException(
+        'Booking is already checked in',
+        HttpStatus.BAD_REQUEST,
+      );
+    }
+
     user = await this.userRepository.findOneAndAddToBalance(
       userId,
       -booking.totalCents,
