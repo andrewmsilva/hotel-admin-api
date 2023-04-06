@@ -29,9 +29,7 @@ const ENV = process.env.NODE_ENV;
 
 @Module({
   imports: [
-    ConfigModule.forRoot({
-      envFilePath: !ENV ? '.env' : `.env.${ENV}`,
-    }),
+    ConfigModule.forRoot({ envFilePath: !ENV ? '.env' : `.env.${ENV}` }),
     MongooseModule.forRoot(process.env.DATABASE_URI, {
       dbName: process.env.DATABASE_NAME,
     }),
@@ -43,9 +41,7 @@ const ENV = process.env.NODE_ENV;
       { name: GuestModel.name, schema: GuestSchema },
       { name: BookingModel.name, schema: BookingSchema },
     ]),
-    MulterModule.register({
-      dest: './uploads',
-    }),
+    MulterModule.register({ dest: './uploads' }),
   ],
   controllers: [UserController, BookingController],
   providers: [

@@ -96,7 +96,7 @@ describe('RoomRepository', () => {
   });
 
   function checkRoom(room: Room) {
-    expect(room.constructor.name).toBe(Room.name);
+    expect(room).toBeInstanceOf(Room);
     expect(isUUID(room.id)).toBe(true);
     expect(room).toEqual({
       id: room.id,

@@ -228,10 +228,17 @@ describe('BookingController (e2e)', () => {
     let existentBooking: BookingModel;
 
     beforeEach(async () => {
+      const existentGuest = await guestModel.findById(guest.id);
+
       existentBooking = await bookingModel.create({
         ...seed.booking.createProps(),
-        guest,
+        guest: existentGuest,
       });
+
+      await roomModel.findOneAndUpdate(
+        { _id: room.id },
+        { $push: { bookings: existentBooking } },
+      );
     });
 
     function creatingConfirmRequest() {

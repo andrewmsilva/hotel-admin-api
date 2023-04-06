@@ -47,7 +47,7 @@ describe('UserRepository', () => {
     it('should create user in db', async () => {
       const user = await userRepository.create(userProps);
 
-      expect(user.constructor.name).toBe(User.name);
+      expect(user).toBeInstanceOf(User);
       expect(isUUID(user.id)).toBe(true);
       expect(user).toEqual({
         id: user.id,
@@ -74,7 +74,7 @@ describe('UserRepository', () => {
         await userRepository.findOneByEmailWithPassword(userProps.email);
 
       expect(encryptedPassword).toBe(userProps.password);
-      expect(user.constructor.name).toBe(User.name);
+      expect(user).toBeInstanceOf(User);
       expect(isUUID(user.id)).toBe(true);
       expect(user).toEqual({
         id: user.id,

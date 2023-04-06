@@ -60,8 +60,7 @@ describe('CreateBookingUseCase', () => {
     );
 
     receiptProps = {
-      bookingId: 'uuid-here',
-      roomId: 'uuid-here',
+      bookingId: updatedBooking.id,
       fileName: 'file-name',
     };
   });
@@ -69,7 +68,7 @@ describe('CreateBookingUseCase', () => {
   it('should add receipt and confirm booking', async () => {
     const stream = await confirmBookingUseCase.execute(receiptProps);
 
-    expect(stream._construct.name).toBe(Readable.name);
+    expect(stream).toBeInstanceOf(Readable);
   });
 
   it('should throw not found error if booking does not exist', async () => {

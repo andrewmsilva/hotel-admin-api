@@ -244,7 +244,7 @@ describe('BookingRepository', () => {
   });
 
   function checkBooking(booking: Booking, status = BookingStatus.Created) {
-    expect(booking.constructor.name).toBe(Booking.name);
+    expect(booking).toBeInstanceOf(Booking);
     expect(isUUID(booking.id)).toBe(true);
     expect(booking).toEqual({
       id: booking.id,
