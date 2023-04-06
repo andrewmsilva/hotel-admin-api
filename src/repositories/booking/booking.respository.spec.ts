@@ -22,6 +22,7 @@ import { HttpException, HttpStatus } from '@nestjs/common';
 import { UserModel, UserSchema } from '../user/user.schema';
 import { User } from 'src/entities/user.entity';
 import { UserRepository } from '../user/user.repository';
+import { randomUUID } from 'crypto';
 
 describe('BookingRepository', () => {
   let bookingRepository: BookingRepository;
@@ -237,6 +238,89 @@ describe('BookingRepository', () => {
       const booking = await bookingRepository.findOneByIdAndSetReceipt(
         'other-uuid-here',
         receiptFileName,
+      );
+
+      expect(booking).toBeNull;
+    });
+  });
+
+  describe('findOneByIdAndUser', () => {
+    beforeEach(async () => {
+      const existentUser = await userModel.findById(user.id);
+
+      existentBooking = await bookingModel.create({
+        ...bookingProps,
+        user: existentUser,
+      });
+
+      await roomModel.findOneAndUpdate(
+        { _id: room.id },
+        { $push: { bookings: existentBooking } },
+      );
+    });
+
+    it('should find booking by id', async () => {
+      const booking = await bookingRepository.findOneByIdAndUser(
+        existentBooking._id,
+        user.id,
+      );
+
+      checkBooking(booking);
+    });
+
+    it('should return null if booking does not exist', async () => {
+      await bookingModel.deleteMany();
+
+      const booking = await bookingRepository.findOneByIdAndUser(
+        existentBooking._id,
+        user.id,
+      );
+
+      expect(booking).toBeNull;
+    });
+
+    it('should return null if booking does not belongs to this user', async () => {
+      const booking = await bookingRepository.findOneByIdAndUser(
+        existentBooking._id,
+        randomUUID(),
+      );
+
+      expect(booking).toBeNull;
+    });
+  });
+
+  describe('findOneByIdAndSetStatus', () => {
+    const newStatus = BookingStatus.Concluded;
+
+    beforeEach(async () => {
+      const existentUser = await userModel.findById(user.id);
+
+      existentBooking = await bookingModel.create({
+        ...bookingProps,
+        user: existentUser,
+      });
+
+      await roomModel.findOneAndUpdate(
+        { _id: room.id },
+        { $push: { bookings: existentBooking } },
+      );
+    });
+
+    it('should find booking by id', async () => {
+      const booking = await bookingRepository.findOneByIdAndSetStatus(
+        existentBooking._id,
+        newStatus,
+      );
+
+      checkBooking(booking, newStatus);
+    });
+
+    it('should return null if booking does not exist', async () => {
+      await bookingModel.deleteMany();
+
+      const booking = await bookingRepository.findOneByIdAndSetStatus(
+        existentBooking._id,
+        newStatus,
       );
 
       expect(booking).toBeNull;

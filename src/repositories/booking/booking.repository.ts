@@ -93,4 +93,50 @@ export class BookingRepository {
 
     return mapBookingModel(booking, room);
   }
+
+  async findOneByIdAndUser(
+    bookingId: string,
+    userId: string,
+  ): Promise<Booking> {
+    const room = await this.roomModel
+      .findOne({ 'bookings._id': bookingId })
+      .populate('hotel');
+
+    if (!room) {
+      return null;
+    }
+
+    const booking = await this.bookingModel
+      .findOne({ _id: bookingId, user: userId })
+      .populate('user');
+
+    if (!booking) {
+      return null;
+    }
+
+    return mapBookingModel(booking, room);
+  }
+
+  async findOneByIdAndSetStatus(
+    bookingId: string,
+    status: BookingStatus,
+  ): Promise<Booking> {
+    const room = await this.roomModel
+      .findOne({ 'bookings._id': bookingId })
+      .populate('hotel');
+
+    if (!room) {
+      return null;
+    }
+
+    const booking = await this.bookingModel
+      .findOneAndUpdate({ _id: bookingId }, { status }, { new: true })
+      .populate('user');
+
+    if (!booking) {
+      return null;
+    }
+
+    return mapBookingModel(booking, room);
+  }
 }
