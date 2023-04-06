@@ -2,7 +2,6 @@ import { Test } from '@nestjs/testing';
 import { randomUUID } from 'crypto';
 import { CreateBookingUseCase } from './create-booking.usecase';
 import { BookingRepository } from 'src/repositories/booking/booking.repository';
-import { GuestRepository } from 'src/repositories/guest/guest.repository';
 import { RoomRepository } from 'src/repositories/room/room.repository';
 import { Room } from 'src/entities/room.entity';
 import { CreateBookingDTO } from './create-booking.dto';
@@ -10,13 +9,14 @@ import { Hotel } from 'src/entities/hotel.entity';
 import { Booking, BookingStatus } from 'src/entities/booking.entity';
 import { HttpException, HttpStatus } from '@nestjs/common';
 import { Seed } from 'src/seeds/seed';
-import { Guest } from 'src/entities/guest.entity';
+import { User } from 'src/entities/user.entity';
+import { UserRepository } from 'src/repositories/user/user.repository';
 
 describe('CreateBookingUseCase', () => {
   let createBookingUseCase: CreateBookingUseCase;
   const seed = new Seed();
 
-  let existentGuest: Guest;
+  let existentUser: User;
   let existentRoom: Room;
   let createdBooking: Booking;
   let throwOverlappingError: boolean;
@@ -42,8 +42,8 @@ describe('CreateBookingUseCase', () => {
           },
         },
         {
-          provide: GuestRepository,
-          useValue: { findOneById: () => existentGuest },
+          provide: UserRepository,
+          useValue: { findOneById: () => existentUser },
         },
         {
           provide: RoomRepository,
@@ -52,9 +52,9 @@ describe('CreateBookingUseCase', () => {
       ],
     }).compile();
 
-    existentGuest = new Guest({
+    existentUser = new User({
       id: randomUUID(),
-      ...seed.guest.createProps(),
+      ...seed.user.createProps(),
     });
 
     existentRoom = new Room({
@@ -66,7 +66,6 @@ describe('CreateBookingUseCase', () => {
     const props = seed.booking.createProps();
     bookingProps = {
       roomId: existentRoom.id,
-      guestId: existentGuest.id,
       checkInAt: props.checkInAt,
       checkOutAt: props.checkOutAt,
     };
@@ -74,7 +73,7 @@ describe('CreateBookingUseCase', () => {
     createdBooking = new Booking({
       id: randomUUID(),
       room: existentRoom,
-      guest: existentGuest,
+      user: existentUser,
       status: BookingStatus.Created,
       checkInAt: bookingProps.checkInAt,
       checkOutAt: bookingProps.checkOutAt,
@@ -89,7 +88,10 @@ describe('CreateBookingUseCase', () => {
   });
 
   it('should create a booking if room is available', async () => {
-    const booking = await createBookingUseCase.execute(bookingProps);
+    const booking = await createBookingUseCase.execute(
+      bookingProps,
+      existentUser.id,
+    );
 
     expect(booking).toEqual(createdBooking);
   });
@@ -97,7 +99,9 @@ describe('CreateBookingUseCase', () => {
   it('should throw conflict error if room is unavailable', async () => {
     throwOverlappingError = true;
 
-    await expect(createBookingUseCase.execute(bookingProps)).rejects.toThrow(
+    await expect(
+      createBookingUseCase.execute(bookingProps, existentUser.id),
+    ).rejects.toThrow(
       new HttpException(
         'Room is unavailable in the chosen date interval',
         HttpStatus.CONFLICT,
@@ -105,18 +109,22 @@ describe('CreateBookingUseCase', () => {
     );
   });
 
-  it('should throw not found error if guest does not exist', async () => {
-    existentGuest = null;
+  it('should throw not found error if user does not exist', async () => {
+    existentUser = null;
 
-    await expect(createBookingUseCase.execute(bookingProps)).rejects.toThrow(
-      new HttpException('Guest not found', HttpStatus.NOT_FOUND),
+    await expect(
+      createBookingUseCase.execute(bookingProps, 'uuid-here'),
+    ).rejects.toThrow(
+      new HttpException('User not found', HttpStatus.NOT_FOUND),
     );
   });
 
   it('should throw not found error if room does not exist', async () => {
     existentRoom = null;
 
-    await expect(createBookingUseCase.execute(bookingProps)).rejects.toThrow(
+    await expect(
+      createBookingUseCase.execute(bookingProps, existentUser.id),
+    ).rejects.toThrow(
       new HttpException('Room not found', HttpStatus.NOT_FOUND),
     );
   });

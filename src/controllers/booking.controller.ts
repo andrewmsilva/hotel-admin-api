@@ -14,9 +14,11 @@ import {
   Header,
   Res,
   Param,
+  Req,
 } from '@nestjs/common';
 import { FileInterceptor } from '@nestjs/platform-express';
 import { Response } from 'express';
+import { AccessTokenPayload } from 'src/entities/access-token.entity';
 import { Booking } from 'src/entities/booking.entity';
 import { AuthorizationGuard } from 'src/guards/authorization.guard';
 import { ConfirmBookingDTO } from 'src/usecases/booking/confirm-booking/confirm-booking.dto';
@@ -37,11 +39,14 @@ export class BookingController {
   @UseGuards(AuthorizationGuard)
   @Post()
   @HttpCode(HttpStatus.CREATED)
-  createBooking(@Body() bookingProps: CreateBookingDTO): Promise<Booking> {
+  createBooking(
+    @Body() bookingProps: CreateBookingDTO,
+    @Req() { user }: { user: AccessTokenPayload },
+  ): Promise<Booking> {
     bookingProps.checkInAt = new Date(bookingProps.checkInAt);
     bookingProps.checkOutAt = new Date(bookingProps.checkOutAt);
 
-    return this.createBookingUseCase.execute(bookingProps);
+    return this.createBookingUseCase.execute(bookingProps, user.id);
   }
 
   @UseGuards(AuthorizationGuard)

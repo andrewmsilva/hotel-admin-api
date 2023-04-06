@@ -5,9 +5,9 @@ import { SharingRepository } from './sharing.repository';
 import { MulterModule } from '@nestjs/platform-express';
 import { randomUUID } from 'crypto';
 import { Booking, BookingStatus } from 'src/entities/booking.entity';
-import { Guest } from 'src/entities/guest.entity';
 import { Hotel } from 'src/entities/hotel.entity';
 import { Room } from 'src/entities/room.entity';
+import { User } from 'src/entities/user.entity';
 
 describe('SharingRepository', () => {
   let sharingRepository: SharingRepository;
@@ -26,7 +26,7 @@ describe('SharingRepository', () => {
 
     sharingRepository = testModule.get<SharingRepository>(SharingRepository);
 
-    const guest = new Guest({ ...seed.guest.createProps(), id: randomUUID() });
+    const user = new User({ ...seed.user.createProps(), id: randomUUID() });
     const hotel = new Hotel({ ...seed.hotel.createProps(), id: randomUUID() });
     const room = new Room({
       ...seed.room.createProps(),
@@ -38,7 +38,7 @@ describe('SharingRepository', () => {
       ...seed.booking.createProps(),
       id: randomUUID(),
       status: BookingStatus.Confirmed,
-      guest,
+      user,
       room,
     });
   });

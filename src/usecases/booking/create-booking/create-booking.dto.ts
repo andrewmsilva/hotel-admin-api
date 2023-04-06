@@ -6,13 +6,9 @@ export class CreateBookingDTO
   implements
     Omit<
       BookingProps,
-      'id' | 'priceCents' | 'totalCents' | 'status' | 'receipt'
+      'id' | 'priceCents' | 'totalCents' | 'status' | 'receipt' | 'userId'
     >
 {
-  @IsUUID()
-  @IsNotEmpty()
-  guestId: string;
-
   @IsUUID()
   @IsNotEmpty()
   roomId: string;

@@ -1,8 +1,8 @@
 import { Booking } from 'src/entities/booking.entity';
-import { mapGuestModel } from '../guest/guest.mapper';
 import { mapRoomModel } from '../room/room.mapper';
 import { BookingModel } from './booking.schema';
 import { RoomModel } from '../room/room.schema';
+import { mapUserModel } from '../user/user.mapper';
 
 export function mapBookingModel(
   bookingModel: BookingModel,
@@ -10,7 +10,7 @@ export function mapBookingModel(
 ): Booking {
   return new Booking({
     id: bookingModel._id,
-    guest: mapGuestModel(bookingModel.guest),
+    user: mapUserModel(bookingModel.user),
     room: mapRoomModel(roomModel),
     status: bookingModel.status,
     checkInAt: bookingModel.checkInAt,

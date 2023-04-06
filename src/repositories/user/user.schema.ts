@@ -1,6 +1,6 @@
 import { Prop, Schema, SchemaFactory } from '@nestjs/mongoose';
 import { randomUUID } from 'crypto';
-import { User } from 'src/entities/user.entity';
+import { Gender, User } from 'src/entities/user.entity';
 
 @Schema({ collection: 'users' })
 export class UserModel implements Omit<User, 'id'> {
@@ -18,6 +18,12 @@ export class UserModel implements Omit<User, 'id'> {
 
   @Prop({ required: true })
   password: string;
+
+  @Prop({ required: true })
+  phone: string;
+
+  @Prop({ required: true, enum: Gender })
+  gender: Gender;
 }
 
 export const UserSchema = SchemaFactory.createForClass(UserModel);

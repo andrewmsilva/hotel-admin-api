@@ -6,21 +6,21 @@ import {
   BookingProps,
   BookingStatus,
 } from 'src/entities/booking.entity';
-import { GuestModel } from '../guest/guest.schema';
 import { RoomModel } from '../room/room.schema';
 import { mapBookingModel } from './booking.mapper';
 import { BookingModel } from './booking.schema';
+import { UserModel } from '../user/user.schema';
 
 @Injectable()
 export class BookingRepository {
   constructor(
-    @InjectModel(GuestModel.name) private guestModel: Model<GuestModel>,
+    @InjectModel(UserModel.name) private userModel: Model<UserModel>,
     @InjectModel(RoomModel.name) private roomModel: Model<RoomModel>,
     @InjectModel(BookingModel.name) private bookingModel: Model<BookingModel>,
   ) {}
 
   async createWithoutOverlapping(bookingProps: BookingProps): Promise<Booking> {
-    const guest = await this.guestModel.findById(bookingProps.guestId);
+    const user = await this.userModel.findById(bookingProps.userId);
 
     // Get room if chosen time is not overlapping any other booking
     let room = await this.roomModel.findOne({
@@ -44,7 +44,7 @@ export class BookingRepository {
 
     const booking = await this.bookingModel.create({
       ...bookingProps,
-      guest,
+      user,
     });
 
     room = await this.roomModel
@@ -54,7 +54,7 @@ export class BookingRepository {
         { new: true },
       )
       .populate('hotel')
-      .populate({ path: 'bookings.guest', model: GuestModel.name });
+      .populate({ path: 'bookings.user', model: UserModel.name });
 
     if (!room) {
       await booking.deleteOne();
@@ -82,7 +82,7 @@ export class BookingRepository {
         { receiptFileName, status: BookingStatus.Confirmed },
         { new: true },
       )
-      .populate('guest');
+      .populate('user');
 
     if (!booking) {
       return null;

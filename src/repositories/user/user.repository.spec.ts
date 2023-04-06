@@ -6,7 +6,6 @@ import { UserModel, UserSchema } from './user.schema';
 import { ConfigModule } from '@nestjs/config';
 import { isUUID } from 'class-validator';
 import { Model } from 'mongoose';
-import { HttpException, HttpStatus } from '@nestjs/common';
 import { JwtModule } from '@nestjs/jwt';
 import { Seed } from 'src/seeds/seed';
 
@@ -47,22 +46,15 @@ describe('UserRepository', () => {
     it('should create user in db', async () => {
       const user = await userRepository.create(userProps);
 
-      expect(user).toBeInstanceOf(User);
-      expect(isUUID(user.id)).toBe(true);
-      expect(user).toEqual({
-        id: user.id,
-        firstName: userProps.firstName,
-        lastName: userProps.lastName,
-        email: userProps.email,
-      });
+      checkUser(user);
     });
 
-    it('should throw an error if user email is already taken', async () => {
+    it('should return null if user email is already taken', async () => {
       await userModel.create(userProps);
 
-      await expect(userRepository.create(userProps)).rejects.toEqual(
-        new HttpException('User already exists', HttpStatus.CONFLICT),
-      );
+      const user = await userRepository.create(userProps);
+
+      expect(user).toBeNull;
     });
   });
 
@@ -74,24 +66,45 @@ describe('UserRepository', () => {
         await userRepository.findOneByEmailWithPassword(userProps.email);
 
       expect(encryptedPassword).toBe(userProps.password);
-      expect(user).toBeInstanceOf(User);
-      expect(isUUID(user.id)).toBe(true);
-      expect(user).toEqual({
-        id: user.id,
-        firstName: userProps.firstName,
-        lastName: userProps.lastName,
-        email: userProps.email,
-      });
+      checkUser(user);
     });
 
-    it('should throw an error if user email is incorrect', async () => {
+    it('should return null if user email is incorrect', async () => {
       await userModel.create(userProps);
 
       const user = await userRepository.findOneByEmailWithPassword(
         'incorrect@email.com',
       );
 
-      expect(user).toBeUndefined;
+      expect(user).toBeNull;
     });
   });
+  describe('findOneById', () => {
+    it('should find user by id', async () => {
+      const existentUser = await userModel.create(userProps);
+
+      const user = await userRepository.findOneById(existentUser._id);
+
+      checkUser(user);
+    });
+
+    it('should return null if user does not exist', async () => {
+      const user = await userRepository.findOneById('uuid-here');
+
+      expect(user).toBeNull;
+    });
+  });
+
+  function checkUser(user: User) {
+    expect(user).toBeInstanceOf(User);
+    expect(isUUID(user.id)).toBe(true);
+    expect(user).toEqual({
+      id: user.id,
+      firstName: userProps.firstName,
+      lastName: userProps.lastName,
+      email: userProps.email,
+      phone: userProps.phone,
+      gender: userProps.gender,
+    });
+  }
 });

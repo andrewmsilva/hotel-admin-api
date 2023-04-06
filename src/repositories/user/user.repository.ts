@@ -1,4 +1,4 @@
-import { HttpException, HttpStatus, Injectable } from '@nestjs/common';
+import { Injectable } from '@nestjs/common';
 import { InjectModel } from '@nestjs/mongoose';
 import { Model } from 'mongoose';
 import { User, UserProps } from 'src/entities/user.entity';
@@ -17,7 +17,7 @@ export class UserRepository {
       await user.save();
     } catch (error) {
       if (error.code === 11000) {
-        throw new HttpException('User already exists', HttpStatus.CONFLICT);
+        return null;
       }
       throw error;
     }
@@ -26,9 +26,17 @@ export class UserRepository {
 
   async findOneByEmailWithPassword(email: string): Promise<[User, string]> {
     const user = await this.userModel.findOne({ email });
-
-    if (user) {
-      return [mapUserModel(user), user.password];
+    if (!user) {
+      return null;
     }
+    return [mapUserModel(user), user.password];
+  }
+
+  async findOneById(id: string): Promise<User> {
+    const user = await this.userModel.findById(id);
+    if (!user) {
+      return null;
+    }
+    return mapUserModel(user);
   }
 }

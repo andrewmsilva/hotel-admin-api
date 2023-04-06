@@ -8,7 +8,7 @@ export class BookingSeed {
     const today = new Date(new Date().toDateString());
     const defaultProps: BookingProps = {
       roomId: null,
-      guestId: null,
+      userId: null,
       checkInAt: today,
       checkOutAt: DateTime.fromJSDate(today)
         .plus({ days: this.bookingDays })
