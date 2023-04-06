@@ -46,7 +46,7 @@ describe('SignInUserUseCase', () => {
     signInUserUseCase = testModule.get<SignInUserUseCase>(SignInUserUseCase);
 
     repositoryResult = [
-      new User({ id: randomUUID(), ...userProps }),
+      new User({ id: randomUUID(), balanceCents: 0, ...userProps }),
       userProps.password,
     ];
   });

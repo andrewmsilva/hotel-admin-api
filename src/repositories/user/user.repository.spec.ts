@@ -105,6 +105,7 @@ describe('UserRepository', () => {
       email: userProps.email,
       phone: userProps.phone,
       gender: userProps.gender,
+      balanceCents: 0,
     });
   }
 });

@@ -34,7 +34,7 @@ describe('SignUpUserUseCase', () => {
       ],
     }).compile();
 
-    createdUser = new User({ id: uuid, ...userProps });
+    createdUser = new User({ id: uuid, balanceCents: 0, ...userProps });
 
     signUpUserUseCase = testModule.get<SignUpUserUseCase>(SignUpUserUseCase);
   });

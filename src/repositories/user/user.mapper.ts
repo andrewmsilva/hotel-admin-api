@@ -9,5 +9,6 @@ export function mapUserModel(userModel: UserModel): User {
     email: userModel.email,
     phone: userModel.phone,
     gender: userModel.gender,
+    balanceCents: userModel.balanceCents,
   });
 }

@@ -103,6 +103,7 @@ describe('UserController (e2e)', () => {
       expect(isUUID(user.id)).toBe(true);
       expect({ ...user, password: seed.user.defaultPassword }).toEqual({
         id: user.id,
+        balanceCents: 0,
         ...userProps,
       });
     });
