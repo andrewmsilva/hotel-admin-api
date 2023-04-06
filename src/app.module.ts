@@ -23,6 +23,7 @@ import { CreateBookingUseCase } from './usecases/booking/create-booking/create-b
 import { ConfirmBookingUseCase } from './usecases/booking/confirm-booking/confirm-booking.usecase';
 import { SharingRepository } from './repositories/sharing/sharing.repository';
 import { GetBookingConfirmationUseCase } from './usecases/booking/get-booking-confirmation/get-booking-confirmation.usecase';
+import { AddToBalanceUseCase } from './usecases/user/add-to-balance/add-to-balance.usecase';
 
 const ENV = process.env.NODE_ENV;
 
@@ -53,6 +54,7 @@ const ENV = process.env.NODE_ENV;
     // Usecases
     SignUpUserUseCase,
     SignInUserUseCase,
+    AddToBalanceUseCase,
     CreateBookingUseCase,
     ConfirmBookingUseCase,
     GetBookingConfirmationUseCase,

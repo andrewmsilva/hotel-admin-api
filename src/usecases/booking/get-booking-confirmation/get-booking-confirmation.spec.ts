@@ -34,7 +34,11 @@ describe('GetBookingConfirmation', () => {
         GetBookingConfirmationUseCase,
       );
 
-    const user = new User({ ...seed.user.createProps(), id: randomUUID() });
+    const user = new User({
+      ...seed.user.createProps(),
+      id: randomUUID(),
+      balanceCents: 0,
+    });
     const hotel = new Hotel({ ...seed.hotel.createProps(), id: randomUUID() });
     const room = new Room({
       ...seed.room.createProps(),

@@ -39,4 +39,22 @@ export class UserRepository {
     }
     return mapUserModel(user);
   }
+
+  async findOneAndAddToBalance(id: string, valueCents: number): Promise<User> {
+    let user = await this.userModel.findById(id);
+    if (!user) {
+      return null;
+    }
+
+    user = await this.userModel.findOneAndUpdate(
+      { _id: id, __v: user.__v },
+      { $inc: { __v: 1, balanceCents: valueCents } },
+      { new: true },
+    );
+    if (!user) {
+      return null;
+    }
+
+    return mapUserModel(user);
+  }
 }

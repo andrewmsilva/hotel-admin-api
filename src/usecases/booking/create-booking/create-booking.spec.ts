@@ -54,6 +54,7 @@ describe('CreateBookingUseCase', () => {
 
     existentUser = new User({
       id: randomUUID(),
+      balanceCents: 0,
       ...seed.user.createProps(),
     });
 

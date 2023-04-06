@@ -95,7 +95,49 @@ describe('UserRepository', () => {
     });
   });
 
-  function checkUser(user: User) {
+  describe('findOneAndAddToBalance', () => {
+    const valueCents = 1000;
+
+    it('should find user and add to its balance', async () => {
+      const existentUser = await userModel.create(userProps);
+
+      const user = await userRepository.findOneAndAddToBalance(
+        existentUser._id,
+        valueCents,
+      );
+
+      checkUser(user, valueCents);
+    });
+
+    it('should find user and add to its balance', async () => {
+      const existentUser = await userModel.create(userProps);
+
+      const promises = await Promise.all([
+        userRepository.findOneAndAddToBalance(existentUser._id, valueCents),
+        userRepository.findOneAndAddToBalance(existentUser._id, valueCents),
+        userRepository.findOneAndAddToBalance(existentUser._id, valueCents),
+        userRepository.findOneAndAddToBalance(existentUser._id, valueCents),
+        userRepository.findOneAndAddToBalance(existentUser._id, valueCents),
+      ]);
+
+      const fulfilledIndex = promises.findIndex((user) => !!user);
+      checkUser(promises[fulfilledIndex], valueCents);
+
+      promises.map((user, index) => {
+        if (index !== fulfilledIndex) {
+          expect(user).toBeNull;
+        }
+      });
+    });
+
+    it('should return null if user does not exist', async () => {
+      const user = await userRepository.findOneById('uuid-here');
+
+      expect(user).toBeNull;
+    });
+  });
+
+  function checkUser(user: User, balanceCents = 0) {
     expect(user).toBeInstanceOf(User);
     expect(isUUID(user.id)).toBe(true);
     expect(user).toEqual({
@@ -105,6 +147,7 @@ describe('UserRepository', () => {
       email: userProps.email,
       phone: userProps.phone,
       gender: userProps.gender,
+      balanceCents,
     });
   }
 });

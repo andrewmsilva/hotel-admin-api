@@ -24,6 +24,9 @@ export class UserModel implements Omit<User, 'id'> {
 
   @Prop({ required: true, enum: Gender })
   gender: Gender;
+
+  @Prop({ required: true, default: 0 })
+  balanceCents: number;
 }
 
 export const UserSchema = SchemaFactory.createForClass(UserModel);
