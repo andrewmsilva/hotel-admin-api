@@ -46,6 +46,10 @@ export class UserRepository {
       return null;
     }
 
+    if (user.balanceCents + valueCents < 0) {
+      return null;
+    }
+
     user = await this.userModel.findOneAndUpdate(
       { _id: id, __v: user.__v },
       { $inc: { __v: 1, balanceCents: valueCents } },
