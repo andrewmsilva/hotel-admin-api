@@ -64,19 +64,30 @@ export class BookingRepository {
     return mapBookingModel(room.bookings.at(-1), room);
   }
 
-  async setReceiptById(
+  async findOneByIdAndSetReceipt(
     bookingId: string,
     receiptFileName: string,
-  ): Promise<boolean> {
-    const booking = await this.bookingModel.findOneAndUpdate(
-      { _id: bookingId },
-      { receiptFileName, status: BookingStatus.Confirmed },
-      { new: true },
-    );
+  ): Promise<Booking> {
+    const room = await this.roomModel
+      .findOne({ 'bookings._id': bookingId })
+      .populate('hotel');
 
-    return (
-      booking?.receiptFileName === receiptFileName &&
-      booking?.status === BookingStatus.Confirmed
-    );
+    if (!room) {
+      return null;
+    }
+
+    const booking = await this.bookingModel
+      .findOneAndUpdate(
+        { _id: bookingId },
+        { receiptFileName, status: BookingStatus.Confirmed },
+        { new: true },
+      )
+      .populate('guest');
+
+    if (!booking) {
+      return null;
+    }
+
+    return mapBookingModel(booking, room);
   }
 }

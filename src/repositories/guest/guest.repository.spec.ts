@@ -71,7 +71,7 @@ describe('GuestRepository', () => {
   });
 
   function checkGuest(guest: Guest) {
-    expect(guest.constructor.name).toBe(Guest.name);
+    expect(guest).toBeInstanceOf(Guest);
     expect(isUUID(guest.id)).toBe(true);
     expect(guest).toEqual({
       id: guest.id,

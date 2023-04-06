@@ -41,7 +41,7 @@ describe('HotelRepository', () => {
     it('should create hotel in db', async () => {
       const hotel = await hotelRepository.create(hotelProps);
 
-      expect(hotel.constructor.name).toBe(Hotel.name);
+      expect(hotel).toBeInstanceOf(Hotel);
       expect(isUUID(hotel.id)).toBe(true);
       expect(hotel).toEqual({
         id: hotel.id,

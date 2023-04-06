@@ -207,7 +207,7 @@ describe('BookingRepository', () => {
     });
   });
 
-  describe('setReceiptById', () => {
+  describe('findOneByIdAndSetReceipt', () => {
     const receiptFileName = 'receipt-file-name';
 
     beforeEach(async () => {
@@ -217,35 +217,40 @@ describe('BookingRepository', () => {
         ...bookingProps,
         guest: existentGuest,
       });
+
+      await roomModel.findOneAndUpdate(
+        { _id: room.id },
+        { $push: { bookings: existentBooking } },
+      );
     });
 
     it('should set booking receipt and chage its status to Confirmed', async () => {
-      const isConfirmed = await bookingRepository.setReceiptById(
+      const booking = await bookingRepository.findOneByIdAndSetReceipt(
         existentBooking._id,
         receiptFileName,
       );
 
-      expect(isConfirmed).toBe(true);
+      checkBooking(booking, BookingStatus.Confirmed);
     });
 
     it('should return false if booking does not exist', async () => {
-      const isConfirmed = await bookingRepository.setReceiptById(
+      const booking = await bookingRepository.findOneByIdAndSetReceipt(
         'other-uuid-here',
         receiptFileName,
       );
 
-      expect(isConfirmed).toBe(false);
+      expect(booking).toBeNull;
     });
   });
 
-  function checkBooking(booking: Booking) {
-    expect(booking.constructor.name).toBe(Booking.name);
+  function checkBooking(booking: Booking, status = BookingStatus.Created) {
+    expect(booking).toBeInstanceOf(Booking);
     expect(isUUID(booking.id)).toBe(true);
     expect(booking).toEqual({
       id: booking.id,
       guest,
       room,
-      status: BookingStatus.Created,
+      status,
       checkInAt: bookingProps.checkInAt,
       checkOutAt: bookingProps.checkOutAt,
       priceCents: bookingProps.priceCents,

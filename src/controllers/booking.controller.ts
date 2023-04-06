@@ -10,6 +10,8 @@ import {
   FileTypeValidator,
   ParseFilePipe,
   Put,
+  Header,
+  Res,
 } from '@nestjs/common';
 import { FileInterceptor } from '@nestjs/platform-express';
 import { Booking } from 'src/entities/booking.entity';
@@ -18,6 +20,7 @@ import { ConfirmBookingDTO } from 'src/usecases/booking/confirm-booking/confirm-
 import { ConfirmBookingUseCase } from 'src/usecases/booking/confirm-booking/confirm-booking.usecase';
 import { CreateBookingDTO } from 'src/usecases/booking/create-booking/create-booking.dto';
 import { CreateBookingUseCase } from 'src/usecases/booking/create-booking/create-booking.usecase';
+import { Response } from 'express';
 
 @Controller('booking')
 export class BookingController {
@@ -40,7 +43,8 @@ export class BookingController {
   @Put('confirm')
   @UseInterceptors(FileInterceptor('receipt'))
   @HttpCode(HttpStatus.OK)
-  confirmBooking(
+  @Header('Content-Type', 'application/pdf')
+  async confirmBooking(
     @UploadedFile(
       new ParseFilePipe({
         validators: [
@@ -50,10 +54,12 @@ export class BookingController {
     )
     receipt: Express.Multer.File,
     @Body() bookingProps: ConfirmBookingDTO,
-  ) {
-    return this.addReceiptUseCase.execute({
+    @Res() res: Response,
+  ): Promise<void> {
+    const stream = await this.addReceiptUseCase.execute({
       ...bookingProps,
       fileName: receipt.filename,
     });
+    stream.pipe(res);
   }
 }
