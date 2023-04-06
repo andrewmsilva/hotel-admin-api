@@ -14,10 +14,15 @@ There are some prerequisites to run this project:
 ```bash
 # install dependencies
 $ yarn install
+
 # start database
 $ yarn database:up
+
 # create local env
 $ cp .env.example .env
+
+# seed the local database
+$ yarn job:seed
 ```
 
 ## Running the app
