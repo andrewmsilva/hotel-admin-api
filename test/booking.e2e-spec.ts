@@ -392,6 +392,45 @@ describe('BookingController (e2e)', () => {
     });
   });
 
+  describe('/booking/:id (GET)', () => {
+    let existentBooking: BookingModel;
+
+    beforeEach(async () => {
+      const existentUser = await userModel.findById(user.id);
+      existentBooking = await bookingModel.create({
+        ...seed.booking.createProps(),
+        status: BookingStatus.Created,
+        user: existentUser,
+      });
+
+      await roomModel.findOneAndUpdate(
+        { _id: room.id },
+        { $push: { bookings: existentBooking } },
+      );
+    });
+
+    function getBookingRequest() {
+      return request(app.getHttpServer())
+        .get('/booking/' + existentBooking._id)
+        .set('Authorization', accessToken);
+    }
+
+    it('should get booking', async () => {
+      const res = await getBookingRequest().expect(HttpStatus.OK);
+
+      checkBooking(res.body);
+    });
+
+    it('should throw not found error if booking does not exist', async () => {
+      await bookingModel.deleteMany();
+
+      await getBookingRequest().expect(HttpStatus.NOT_FOUND).expect({
+        statusCode: HttpStatus.NOT_FOUND,
+        message: 'Booking not found',
+      });
+    });
+  });
+
   function checkBooking(booking: Booking, status = BookingStatus.Created) {
     expect(isUUID(booking.id)).toBe(true);
     expect(booking).toEqual({
