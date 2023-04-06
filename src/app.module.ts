@@ -27,6 +27,7 @@ import { AddToBalanceUseCase } from './usecases/user/add-to-balance/add-to-balan
 import { CheckInUseCase } from './usecases/booking/check-in/check-in.usecase';
 import { CacheInterceptor, CacheModule } from '@nestjs/cache-manager';
 import { APP_INTERCEPTOR } from '@nestjs/core';
+import { GetBookingUseCase } from './usecases/booking/get-booking/get-booking.usecase';
 
 const ENV = process.env.NODE_ENV;
 
@@ -65,6 +66,7 @@ const ENV = process.env.NODE_ENV;
     ConfirmBookingUseCase,
     GetBookingConfirmationUseCase,
     CheckInUseCase,
+    GetBookingUseCase,
     // Others
     {
       provide: APP_INTERCEPTOR,

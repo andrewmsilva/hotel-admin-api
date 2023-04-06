@@ -7,14 +7,8 @@ import { GetBookingDTO } from './get-booking.dto';
 export class GetBookingUseCase {
   constructor(private readonly bookingRepository: BookingRepository) {}
 
-  async execute(
-    { bookingId }: GetBookingDTO,
-    userId: string,
-  ): Promise<Booking> {
-    const booking = await this.bookingRepository.findOneByIdAndUser(
-      bookingId,
-      userId,
-    );
+  async execute({ id }: GetBookingDTO, userId: string): Promise<Booking> {
+    const booking = await this.bookingRepository.findOneByIdAndUser(id, userId);
 
     if (!booking) {
       throw new HttpException('Booking not found', HttpStatus.NOT_FOUND);

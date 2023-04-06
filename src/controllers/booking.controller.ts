@@ -29,6 +29,8 @@ import { CreateBookingDTO } from 'src/usecases/booking/create-booking/create-boo
 import { CreateBookingUseCase } from 'src/usecases/booking/create-booking/create-booking.usecase';
 import { GetBookingConfirmationDTO } from 'src/usecases/booking/get-booking-confirmation/get-booking-confirmation.dto';
 import { GetBookingConfirmationUseCase } from 'src/usecases/booking/get-booking-confirmation/get-booking-confirmation.usecase';
+import { GetBookingDTO } from 'src/usecases/booking/get-booking/get-booking.dto';
+import { GetBookingUseCase } from 'src/usecases/booking/get-booking/get-booking.usecase';
 
 @Controller('booking')
 export class BookingController {
@@ -37,7 +39,18 @@ export class BookingController {
     private readonly confirmBookingUseCase: ConfirmBookingUseCase,
     private readonly getBookingConfirmationUseCase: GetBookingConfirmationUseCase,
     private readonly checkInUseCase: CheckInUseCase,
+    private readonly getBookingUseCase: GetBookingUseCase,
   ) {}
+
+  @UseGuards(AuthorizationGuard)
+  @Get(':id')
+  @HttpCode(HttpStatus.OK)
+  getBooking(
+    @Param() bookingProps: GetBookingDTO,
+    @Req() { user }: { user: AccessTokenPayload },
+  ): Promise<Booking> {
+    return this.getBookingUseCase.execute(bookingProps, user.id);
+  }
 
   @UseGuards(AuthorizationGuard)
   @Post()

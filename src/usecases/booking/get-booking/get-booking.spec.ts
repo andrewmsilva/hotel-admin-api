@@ -57,16 +57,16 @@ describe('GetBookingUseCase', () => {
   });
 
   it('should get booking', async () => {
-    const booking = await getBookingUseCase.execute({ bookingId }, user.id);
+    const booking = await getBookingUseCase.execute({ id: bookingId }, user.id);
 
     expect(booking).toEqual(existentBooking);
   });
 
-  it('should get booking', async () => {
+  it('should throw not found error if booking does not exist', async () => {
     existentBooking = null;
 
     await expect(
-      getBookingUseCase.execute({ bookingId }, user.id),
+      getBookingUseCase.execute({ id: bookingId }, user.id),
     ).rejects.toThrow(
       new HttpException('Booking not found', HttpStatus.NOT_FOUND),
     );
