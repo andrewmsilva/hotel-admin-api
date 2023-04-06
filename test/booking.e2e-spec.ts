@@ -320,6 +320,7 @@ describe('BookingController (e2e)', () => {
       const existentUser = await userModel.findById(user.id);
       existentBooking = await bookingModel.create({
         ...seed.booking.createProps(),
+        status: BookingStatus.Confirmed,
         user: existentUser,
       });
 
@@ -345,7 +346,7 @@ describe('BookingController (e2e)', () => {
       checkBooking(res.body, newStatus);
     });
 
-    it('should throw not found error if user doed not exist', async () => {
+    it('should throw not found error if user does not exist', async () => {
       await userModel.deleteMany();
 
       await checkInRequest().expect(HttpStatus.NOT_FOUND).expect({
@@ -354,7 +355,7 @@ describe('BookingController (e2e)', () => {
       });
     });
 
-    it('should throw not found error if booking doed not exist', async () => {
+    it('should throw not found error if booking does not exist', async () => {
       await bookingModel.deleteMany();
 
       await checkInRequest().expect(HttpStatus.NOT_FOUND).expect({
@@ -363,7 +364,25 @@ describe('BookingController (e2e)', () => {
       });
     });
 
-    it('should throw not found error if booking doed not exist', async () => {
+    it('should throw bad request error if booking is Created', async () => {
+      await bookingModel.updateMany({ status: BookingStatus.Created });
+
+      await checkInRequest().expect(HttpStatus.BAD_REQUEST).expect({
+        statusCode: HttpStatus.BAD_REQUEST,
+        message: 'Booking is not confirmed yet',
+      });
+    });
+
+    it('should throw bad request error if booking is Concluded', async () => {
+      await bookingModel.updateMany({ status: BookingStatus.Concluded });
+
+      await checkInRequest().expect(HttpStatus.BAD_REQUEST).expect({
+        statusCode: HttpStatus.BAD_REQUEST,
+        message: 'Booking is already checked in',
+      });
+    });
+
+    it('should throw payment required error if user does not have enough balance', async () => {
       await userModel.findOneAndUpdate({ _id: user.id }, { balanceCents: 0 });
 
       await checkInRequest().expect(HttpStatus.PAYMENT_REQUIRED).expect({

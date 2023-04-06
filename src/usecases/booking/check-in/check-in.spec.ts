@@ -114,7 +114,7 @@ describe('CheckInUseCase', () => {
     );
   });
 
-  it('should throw not found error if booking does not exist', async () => {
+  it('should throw bad request error if booking status is Concluded', async () => {
     existentBooking.status = BookingStatus.Concluded;
 
     await expect(
