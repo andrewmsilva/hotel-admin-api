@@ -58,7 +58,10 @@ export class BookingRepository {
 
     if (!room) {
       await booking.deleteOne();
-      throw new HttpException('Room state is not updated', HttpStatus.CONFLICT);
+      throw new HttpException(
+        'Room booking state was not updated, try again',
+        HttpStatus.CONFLICT,
+      );
     }
 
     return mapBookingModel(room.bookings.at(-1), room);
