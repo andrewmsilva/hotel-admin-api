@@ -5,5 +5,9 @@ export class ConfirmBookingDTO {
   @IsNotEmpty()
   bookingId: string;
 
+  @IsUUID()
+  @IsNotEmpty()
+  roomId: string;
+
   fileName: string;
 }

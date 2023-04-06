@@ -2,47 +2,81 @@ import { Test } from '@nestjs/testing';
 import { ConfirmBookingUseCase } from './confirm-booking.usecase';
 import { BookingRepository } from 'src/repositories/booking/booking.repository';
 import { ConfirmBookingDTO } from './confirm-booking.dto';
+import { SharingRepository } from 'src/repositories/sharing/sharing.repository';
+import { Readable } from 'stream';
+import { HttpException, HttpStatus } from '@nestjs/common';
+import { Booking } from 'src/entities/booking.entity';
+import { Seed } from 'src/seeds/seed';
+import { Guest } from 'src/entities/guest.entity';
+import { randomUUID } from 'crypto';
+import { Room } from 'src/entities/room.entity';
+import { Hotel } from 'src/entities/hotel.entity';
+import { BookingStatus } from 'src/entities/booking.entity';
 
 describe('CreateBookingUseCase', () => {
-  let addReceiptUseCase: ConfirmBookingUseCase;
-  let setBookingAsConfirmed: boolean;
+  let confirmBookingUseCase: ConfirmBookingUseCase;
+  let updatedBooking: Booking;
+  let receiptProps: ConfirmBookingDTO;
 
-  const receiptProps: ConfirmBookingDTO = {
-    bookingId: 'uuid-here',
-    fileName: 'file-name',
-  };
+  const seed = new Seed();
 
   beforeEach(async () => {
     const testModule = await Test.createTestingModule({
       providers: [
         ConfirmBookingUseCase,
         {
+          provide: SharingRepository,
+          useValue: {
+            createBookingConfirmationPdf: () => new Readable(),
+          },
+        },
+        {
           provide: BookingRepository,
           useValue: {
-            setReceiptById: () => setBookingAsConfirmed,
+            findOneByIdAndSetReceipt: () => updatedBooking,
           },
         },
       ],
     }).compile();
 
-    addReceiptUseCase = testModule.get<ConfirmBookingUseCase>(
+    const guest = new Guest({ ...seed.guest.createProps(), id: randomUUID() });
+    const hotel = new Hotel({ ...seed.hotel.createProps(), id: randomUUID() });
+    const room = new Room({
+      ...seed.room.createProps(),
+      id: randomUUID(),
+      hotel,
+    });
+
+    updatedBooking = new Booking({
+      ...seed.booking.createProps(),
+      id: randomUUID(),
+      status: BookingStatus.Confirmed,
+      guest,
+      room,
+    });
+
+    confirmBookingUseCase = testModule.get<ConfirmBookingUseCase>(
       ConfirmBookingUseCase,
     );
 
-    setBookingAsConfirmed = true;
+    receiptProps = {
+      bookingId: 'uuid-here',
+      roomId: 'uuid-here',
+      fileName: 'file-name',
+    };
   });
 
   it('should add receipt and confirm booking', async () => {
-    const isConfirmed = await addReceiptUseCase.execute(receiptProps);
+    const stream = await confirmBookingUseCase.execute(receiptProps);
 
-    expect(isConfirmed).toBe(true);
+    expect(stream._construct.name).toBe(Readable.name);
   });
 
-  it('should return false if booking does not exist', async () => {
-    setBookingAsConfirmed = false;
+  it('should throw not found error if booking does not exist', async () => {
+    updatedBooking = null;
 
-    const isConfirmed = await addReceiptUseCase.execute(receiptProps);
-
-    expect(isConfirmed).toBe(false);
+    await expect(confirmBookingUseCase.execute(receiptProps)).rejects.toThrow(
+      new HttpException('Booking not found', HttpStatus.NOT_FOUND),
+    );
   });
 });

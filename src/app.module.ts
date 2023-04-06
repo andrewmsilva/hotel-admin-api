@@ -23,6 +23,7 @@ import { UserModel, UserSchema } from './repositories/user/user.schema';
 import { MulterModule } from '@nestjs/platform-express';
 import { CreateBookingUseCase } from './usecases/booking/create-booking/create-booking.usecase';
 import { ConfirmBookingUseCase } from './usecases/booking/confirm-booking/confirm-booking.usecase';
+import { SharingRepository } from './repositories/sharing/sharing.repository';
 
 const ENV = process.env.NODE_ENV;
 
@@ -50,6 +51,7 @@ const ENV = process.env.NODE_ENV;
   providers: [
     // Repositories
     AuthorizationRepository,
+    SharingRepository,
     UserRepository,
     GuestRepository,
     HotelRepository,
