@@ -6,23 +6,23 @@ import { Model } from 'mongoose';
 import { AuthorizationRepository } from 'src/repositories/authorization/authorization.repository';
 import { HotelModel } from 'src/repositories/hotel/hotel.schema';
 import { RoomModel } from 'src/repositories/room/room.schema';
-import { GuestModel } from 'src/repositories/guest/guest.schema';
 import { BookingModel } from 'src/repositories/booking/booking.schema';
 import { HotelRepository } from 'src/repositories/hotel/hotel.repository';
 import { BookingRepository } from 'src/repositories/booking/booking.repository';
-import { GuestRepository } from 'src/repositories/guest/guest.repository';
 import { RoomRepository } from 'src/repositories/room/room.repository';
 import { randomUUID } from 'crypto';
 import { Seed } from 'src/seeds/seed';
 import { Hotel } from 'src/entities/hotel.entity';
 import { Room } from 'src/entities/room.entity';
-import { Guest } from 'src/entities/guest.entity';
 import { isUUID } from 'class-validator';
 import { DateTime } from 'luxon';
 import { CreateBookingDTO } from 'src/usecases/booking/create-booking/create-booking.dto';
 import { Booking, BookingStatus } from 'src/entities/booking.entity';
 import * as path from 'path';
 import { SharingRepository } from 'src/repositories/sharing/sharing.repository';
+import { User } from 'src/entities/user.entity';
+import { UserModel } from 'src/repositories/user/user.schema';
+import { UserRepository } from 'src/repositories/user/user.repository';
 
 describe('BookingController (e2e)', () => {
   let app: INestApplication;
@@ -32,13 +32,13 @@ describe('BookingController (e2e)', () => {
   let bookingRepository: BookingRepository;
   let hotelModel: Model<HotelModel>;
   let roomModel: Model<RoomModel>;
-  let guestModel: Model<GuestModel>;
+  let userModel: Model<UserModel>;
   let bookingModel: Model<BookingModel>;
 
   let accessToken: string;
   let hotel: Hotel;
   let room: Room;
-  let guest: Guest;
+  let user: User;
   let bookingDto: CreateBookingDTO;
 
   beforeEach(async () => {
@@ -53,13 +53,6 @@ describe('BookingController (e2e)', () => {
     authorizationRepository = app.get<AuthorizationRepository>(
       AuthorizationRepository,
     );
-    accessToken =
-      'Bearer ' +
-      authorizationRepository.createJWT({
-        id: randomUUID(),
-        firstName: 'Firstname',
-        email: 'firstname@gmail.com',
-      });
 
     const hotelRepository = app.get<HotelRepository>(HotelRepository);
     hotel = await hotelRepository.create(seed.hotel.createProps());
@@ -71,22 +64,29 @@ describe('BookingController (e2e)', () => {
     );
     roomModel = (roomRepository as any).roomModel;
 
-    const guestRepository = app.get<GuestRepository>(GuestRepository);
-    guest = await guestRepository.create(seed.guest.createProps());
-    guestModel = (guestRepository as any).guestModel;
+    const userRepository = app.get<UserRepository>(UserRepository);
+    user = await userRepository.create(seed.user.createProps());
+    userModel = (userRepository as any).userModel;
+
+    accessToken =
+      'Bearer ' +
+      authorizationRepository.createJWT({
+        id: user.id,
+        firstName: user.firstName,
+        email: user.lastName,
+      });
 
     bookingRepository = app.get<BookingRepository>(BookingRepository);
     bookingModel = (bookingRepository as any).bookingModel;
     bookingDto = {
       ...seed.booking.createProps(),
       roomId: room.id,
-      guestId: guest.id,
     };
   });
 
   afterEach(async () => {
     await bookingModel.deleteMany();
-    await guestModel.deleteMany();
+    await userModel.deleteMany();
     await roomModel.deleteMany();
     await hotelModel.deleteMany();
   });
@@ -139,7 +139,7 @@ describe('BookingController (e2e)', () => {
       await bookingRepository.createWithoutOverlapping(
         seed.booking.createProps({
           roomId: room.id,
-          guestId: guest.id,
+          userId: user.id,
           checkInAt: DateTime.fromJSDate(bookingDto.checkInAt)
             .minus({ days: 2 })
             .toJSDate(),
@@ -158,15 +158,15 @@ describe('BookingController (e2e)', () => {
         });
     });
 
-    it('should throw not found error if guest does not exist', async () => {
-      await guestModel.deleteMany();
+    it('should throw not found error if user does not exist', async () => {
+      await userModel.deleteMany();
 
       await createBookingRequest()
         .send(bookingDto)
         .expect(HttpStatus.NOT_FOUND)
         .expect({
           statusCode: HttpStatus.NOT_FOUND,
-          message: 'Guest not found',
+          message: 'User not found',
         });
     });
 
@@ -215,11 +215,11 @@ describe('BookingController (e2e)', () => {
     let existentBooking: BookingModel;
 
     beforeEach(async () => {
-      const existentGuest = await guestModel.findById(guest.id);
+      const existentUser = await userModel.findById(user.id);
 
       existentBooking = await bookingModel.create({
         ...seed.booking.createProps(),
-        guest: existentGuest,
+        user: existentUser,
       });
 
       await roomModel.findOneAndUpdate(
@@ -280,7 +280,7 @@ describe('BookingController (e2e)', () => {
         ...seed.booking.createProps(),
         id: randomUUID(),
         status: BookingStatus.Confirmed,
-        guest,
+        user,
         room,
       });
 
@@ -317,7 +317,7 @@ describe('BookingController (e2e)', () => {
     expect(booking).toEqual({
       id: booking.id,
       room: { ...room, hotel: { ...hotel } },
-      guest: { ...guest },
+      user: { ...user },
       status,
       checkInAt: bookingDto.checkInAt.toISOString(),
       checkOutAt: bookingDto.checkOutAt.toISOString(),

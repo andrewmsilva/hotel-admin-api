@@ -4,13 +4,13 @@ import { Seed } from 'src/seeds/seed';
 import { MulterModule } from '@nestjs/platform-express';
 import { randomUUID } from 'crypto';
 import { Booking, BookingStatus } from 'src/entities/booking.entity';
-import { Guest } from 'src/entities/guest.entity';
 import { Hotel } from 'src/entities/hotel.entity';
 import { Room } from 'src/entities/room.entity';
 import { SharingRepository } from 'src/repositories/sharing/sharing.repository';
 import { GetBookingConfirmationUseCase } from './get-booking-confirmation.usecase';
 import { Readable } from 'stream';
 import { HttpException, HttpStatus } from '@nestjs/common';
+import { User } from 'src/entities/user.entity';
 
 describe('GetBookingConfirmation', () => {
   let getBookingConfirmationUseCase: GetBookingConfirmationUseCase;
@@ -34,7 +34,7 @@ describe('GetBookingConfirmation', () => {
         GetBookingConfirmationUseCase,
       );
 
-    const guest = new Guest({ ...seed.guest.createProps(), id: randomUUID() });
+    const user = new User({ ...seed.user.createProps(), id: randomUUID() });
     const hotel = new Hotel({ ...seed.hotel.createProps(), id: randomUUID() });
     const room = new Room({
       ...seed.room.createProps(),
@@ -46,7 +46,7 @@ describe('GetBookingConfirmation', () => {
       ...seed.booking.createProps(),
       id: randomUUID(),
       status: BookingStatus.Confirmed,
-      guest,
+      user,
       room,
     });
 

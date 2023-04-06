@@ -6,12 +6,12 @@ import { SharingRepository } from 'src/repositories/sharing/sharing.repository';
 import { HttpException, HttpStatus } from '@nestjs/common';
 import { Booking } from 'src/entities/booking.entity';
 import { Seed } from 'src/seeds/seed';
-import { Guest } from 'src/entities/guest.entity';
 import { randomUUID } from 'crypto';
 import { Room } from 'src/entities/room.entity';
 import { Hotel } from 'src/entities/hotel.entity';
 import { BookingStatus } from 'src/entities/booking.entity';
 import { isUUID } from 'class-validator';
+import { User } from 'src/entities/user.entity';
 
 describe('CreateBookingUseCase', () => {
   let confirmBookingUseCase: ConfirmBookingUseCase;
@@ -39,7 +39,7 @@ describe('CreateBookingUseCase', () => {
       ],
     }).compile();
 
-    const guest = new Guest({ ...seed.guest.createProps(), id: randomUUID() });
+    const user = new User({ ...seed.user.createProps(), id: randomUUID() });
     const hotel = new Hotel({ ...seed.hotel.createProps(), id: randomUUID() });
     const room = new Room({
       ...seed.room.createProps(),
@@ -51,7 +51,7 @@ describe('CreateBookingUseCase', () => {
       ...seed.booking.createProps(),
       id: randomUUID(),
       status: BookingStatus.Confirmed,
-      guest,
+      user,
       room,
     });
 

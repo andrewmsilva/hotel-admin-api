@@ -3,10 +3,11 @@ import {
   IsNotEmpty,
   IsEmail,
   IsStrongPassword,
+  IsPhoneNumber,
 } from 'class-validator';
-import { UserProps } from 'src/entities/user.entity';
+import { Gender, UserProps } from 'src/entities/user.entity';
 
-export class CreateUserDTO implements UserProps {
+export class SignUpUserDTO implements UserProps {
   @IsString()
   @IsNotEmpty()
   firstName: string;
@@ -30,4 +31,13 @@ export class CreateUserDTO implements UserProps {
     minSymbols: 1,
   })
   password: string;
+
+  @IsString()
+  @IsNotEmpty()
+  @IsPhoneNumber()
+  phone: string;
+
+  @IsString()
+  @IsNotEmpty()
+  gender: Gender;
 }

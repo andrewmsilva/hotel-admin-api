@@ -14,25 +14,25 @@ import {
   BookingStatus,
 } from 'src/entities/booking.entity';
 import { RoomModel, RoomSchema } from '../room/room.schema';
-import { GuestModel, GuestSchema } from '../guest/guest.schema';
 import { RoomRepository } from '../room/room.repository';
-import { GuestRepository } from '../guest/guest.repository';
 import { Room } from 'src/entities/room.entity';
-import { Guest } from 'src/entities/guest.entity';
 import { DateTime } from 'luxon';
 import { Seed } from 'src/seeds/seed';
 import { HttpException, HttpStatus } from '@nestjs/common';
+import { UserModel, UserSchema } from '../user/user.schema';
+import { User } from 'src/entities/user.entity';
+import { UserRepository } from '../user/user.repository';
 
 describe('BookingRepository', () => {
   let bookingRepository: BookingRepository;
   let hotelModel: Model<HotelModel>;
   let roomModel: Model<RoomModel>;
-  let guestModel: Model<GuestModel>;
+  let userModel: Model<UserModel>;
   let bookingModel: Model<BookingModel>;
 
   let hotel: Hotel;
   let room: Room;
-  let guest: Guest;
+  let user: User;
   let bookingProps: BookingProps;
   let existentBooking: BookingModel;
 
@@ -48,43 +48,43 @@ describe('BookingRepository', () => {
         MongooseModule.forFeature([
           { name: HotelModel.name, schema: HotelSchema },
           { name: RoomModel.name, schema: RoomSchema },
-          { name: GuestModel.name, schema: GuestSchema },
+          { name: UserModel.name, schema: UserSchema },
           { name: BookingModel.name, schema: BookingSchema },
         ]),
       ],
       providers: [
         HotelRepository,
         RoomRepository,
-        GuestRepository,
+        UserRepository,
         BookingRepository,
       ],
     }).compile();
 
-    const hotelRepository = testModule.get<HotelRepository>(HotelRepository);
+    const hotelRepository = testModule.get(HotelRepository);
     hotelModel = (hotelRepository as any).hotelModel;
     hotel = await hotelRepository.create(seed.hotel.createProps());
 
-    const roomRepository = testModule.get<RoomRepository>(RoomRepository);
+    const roomRepository = testModule.get(RoomRepository);
     roomModel = (roomRepository as any).roomModel;
     room = await roomRepository.create(
       seed.room.createProps({ hotelId: hotel.id }),
     );
 
-    const guestRepository = testModule.get<GuestRepository>(GuestRepository);
-    guestModel = (guestRepository as any).guestModel;
-    guest = await guestRepository.create(seed.guest.createProps());
+    const userRepository = testModule.get(UserRepository);
+    userModel = (userRepository as any).userModel;
+    user = await userRepository.create(seed.user.createProps());
 
-    bookingRepository = testModule.get<BookingRepository>(BookingRepository);
+    bookingRepository = testModule.get(BookingRepository);
     bookingModel = (bookingRepository as any).bookingModel;
     bookingProps = seed.booking.createProps({
       roomId: room.id,
-      guestId: guest.id,
+      userId: user.id,
     });
   });
 
   afterEach(async () => {
     await bookingModel.deleteMany();
-    await guestModel.deleteMany();
+    await userModel.deleteMany();
     await roomModel.deleteMany();
     await hotelModel.deleteMany();
   });
@@ -130,11 +130,11 @@ describe('BookingRepository', () => {
 
     describe('overlapping tests', () => {
       beforeEach(async () => {
-        const existentGuest = await guestModel.findById(guest.id);
+        const existentUser = await userModel.findById(user.id);
 
         existentBooking = await bookingModel.create({
           ...bookingProps,
-          guest: existentGuest,
+          user: existentUser,
         });
 
         await roomModel.findOneAndUpdate(
@@ -211,11 +211,11 @@ describe('BookingRepository', () => {
     const receiptFileName = 'receipt-file-name';
 
     beforeEach(async () => {
-      const existentGuest = await guestModel.findById(guest.id);
+      const existentUser = await userModel.findById(user.id);
 
       existentBooking = await bookingModel.create({
         ...bookingProps,
-        guest: existentGuest,
+        user: existentUser,
       });
 
       await roomModel.findOneAndUpdate(
@@ -248,7 +248,7 @@ describe('BookingRepository', () => {
     expect(isUUID(booking.id)).toBe(true);
     expect(booking).toEqual({
       id: booking.id,
-      guest,
+      user,
       room,
       status,
       checkInAt: bookingProps.checkInAt,

@@ -8,7 +8,7 @@ export class SharingRepository {
   async createBookingConfirmationPdf(booking: Booking): Promise<void> {
     const room = booking.room;
     const hotel = room.hotel;
-    const guest = booking.guest;
+    const user = booking.user;
 
     const confimationPdf = await PDFDocument.create();
 
@@ -38,14 +38,14 @@ export class SharingRepository {
       font: timesRomanFont,
     });
 
-    page.drawText(`${guest.firstName} ${guest.lastName}`, {
+    page.drawText(`${user.firstName} ${user.lastName}`, {
       x: 95,
       y: top - 8 * commonFontSize,
       size: commonFontSize,
       font: timesRomanFont,
     });
 
-    page.drawText(`${guest.email} / ${guest.phone}`, {
+    page.drawText(`${user.email} / ${user.phone}`, {
       x: 95,
       y: top - 9 * commonFontSize,
       size: commonFontSize,
@@ -94,7 +94,7 @@ export class SharingRepository {
       font: timesRomanFont,
     });
 
-    page.drawText(`Maximum guests: ${room.maxGuests}`, {
+    page.drawText(`Maximum users: ${room.maxGuests}`, {
       x: 95,
       y: top - 20 * commonFontSize,
       size: commonFontSize,

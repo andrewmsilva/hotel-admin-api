@@ -1,5 +1,5 @@
-import { Guest } from './guest.entity';
 import { Room } from './room.entity';
+import { User } from './user.entity';
 
 export enum BookingStatus {
   Created = 'Created',
@@ -9,7 +9,7 @@ export enum BookingStatus {
 export class Booking {
   readonly id: string;
 
-  guest: Guest;
+  user: User;
   room: Room;
 
   status: BookingStatus;
@@ -21,7 +21,7 @@ export class Booking {
 
   constructor(props: Booking) {
     this.id = props.id;
-    this.guest = props.guest;
+    this.user = props.user;
     this.room = props.room;
     this.status = props.status;
     this.checkInAt = props.checkInAt;
@@ -32,7 +32,7 @@ export class Booking {
 }
 
 export interface BookingProps
-  extends Omit<Booking, 'id' | 'guest' | 'room' | 'status'> {
-  guestId: string;
+  extends Omit<Booking, 'id' | 'user' | 'room' | 'status'> {
+  userId: string;
   roomId: string;
 }

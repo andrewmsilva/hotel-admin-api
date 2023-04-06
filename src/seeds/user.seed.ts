@@ -1,4 +1,4 @@
-import { UserProps } from 'src/entities/user.entity';
+import { Gender, UserProps } from 'src/entities/user.entity';
 import * as bcrypt from 'bcrypt';
 
 export class UserSeed {
@@ -10,6 +10,8 @@ export class UserSeed {
       lastName: 'Lastname',
       email: 'firstname@gmail.com',
       password: bcrypt.hashSync(this.defaultPassword, 10),
+      phone: '+5511922223333',
+      gender: Gender.Other,
     };
 
     return Object.assign(defaultProps, userProps);

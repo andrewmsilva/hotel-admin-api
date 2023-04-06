@@ -8,8 +8,8 @@ import { UserRepository } from 'src/repositories/user/user.repository';
 import { UserModel } from 'src/repositories/user/user.schema';
 import { AuthorizationRepository } from 'src/repositories/authorization/authorization.repository';
 import { AccessToken } from 'src/entities/access-token.entity';
-import { randomUUID } from 'crypto';
 import { Seed } from 'src/seeds/seed';
+import { mapUserModel } from 'src/repositories/user/user.mapper';
 
 describe('UserController (e2e)', () => {
   let app: INestApplication;
@@ -17,7 +17,9 @@ describe('UserController (e2e)', () => {
   let userModel: Model<UserModel>;
 
   const seed = new Seed();
-  const userProps = seed.user.createProps({ password: 'Strong123!' });
+  const userProps = seed.user.createProps({
+    password: seed.user.defaultPassword,
+  });
 
   beforeEach(async () => {
     const moduleFixture: TestingModule = await Test.createTestingModule({
@@ -86,41 +88,29 @@ describe('UserController (e2e)', () => {
     });
   });
 
-  describe('/user (POST)', () => {
-    let accessToken: string;
-
-    beforeEach(() => {
-      accessToken =
-        'Bearer ' +
-        authorizationRepository.createJWT({
-          id: randomUUID(),
-          firstName: userProps.firstName,
-          email: userProps.email,
-        });
-    });
-
+  describe('/user/sign-up (POST)', () => {
     it('should create user', async () => {
       const res = await request(app.getHttpServer())
-        .post('/user')
-        .set('Authorization', accessToken)
+        .post('/user/sign-up')
         .send(userProps)
         .expect(HttpStatus.CREATED);
 
-      const user = res.body;
+      const { accessToken }: AccessToken = res.body;
+      expect(isJWT(accessToken)).toBe(true);
+
+      const user = mapUserModel(await userModel.findOne());
 
       expect(isUUID(user.id)).toBe(true);
-      expect(user).toEqual({
+      expect({ ...user, password: seed.user.defaultPassword }).toEqual({
         id: user.id,
         ...userProps,
-        password: user.password,
       });
     });
 
     it('should throw conflict error if user email is already taken', async () => {
       await userModel.create(userProps);
       await request(app.getHttpServer())
-        .post('/user')
-        .set('Authorization', accessToken)
+        .post('/user/sign-up')
         .send(userProps)
         .expect(HttpStatus.CONFLICT)
         .expect({
@@ -131,8 +121,7 @@ describe('UserController (e2e)', () => {
 
     it('should throw validation error if firstName is empty', async () => {
       await request(app.getHttpServer())
-        .post('/user')
-        .set('Authorization', accessToken)
+        .post('/user/sign-up')
         .send({ ...userProps, firstName: '' })
         .expect(HttpStatus.BAD_REQUEST)
         .expect({
@@ -144,8 +133,7 @@ describe('UserController (e2e)', () => {
 
     it('should throw validation error if lastName is empty', async () => {
       await request(app.getHttpServer())
-        .post('/user')
-        .set('Authorization', accessToken)
+        .post('/user/sign-up')
         .send({ ...userProps, lastName: '' })
         .expect(HttpStatus.BAD_REQUEST)
         .expect({
@@ -157,8 +145,7 @@ describe('UserController (e2e)', () => {
 
     it('should throw validation error if email is invalid', async () => {
       await request(app.getHttpServer())
-        .post('/user')
-        .set('Authorization', accessToken)
+        .post('/user/sign-up')
         .send({ ...userProps, email: 'test@test' })
         .expect(HttpStatus.BAD_REQUEST)
         .expect({
@@ -170,25 +157,13 @@ describe('UserController (e2e)', () => {
 
     it('should throw validation error if password is not strong', async () => {
       await request(app.getHttpServer())
-        .post('/user')
-        .set('Authorization', accessToken)
+        .post('/user/sign-up')
         .send({ ...userProps, password: 'Strong?' })
         .expect(HttpStatus.BAD_REQUEST)
         .expect({
           statusCode: HttpStatus.BAD_REQUEST,
           message: ['password is not strong enough'],
           error: 'Bad Request',
-        });
-    });
-
-    it('should throw unauthoried error user is not signed in', async () => {
-      await request(app.getHttpServer())
-        .post('/user')
-        .send(userProps)
-        .expect(HttpStatus.UNAUTHORIZED)
-        .expect({
-          statusCode: HttpStatus.UNAUTHORIZED,
-          message: 'Unauthorized',
         });
     });
   });

@@ -1,10 +1,6 @@
 import { NestFactory } from '@nestjs/core';
 import { Model } from 'mongoose';
 import { AppModule } from 'src/app.module';
-import { BookingRepository } from 'src/repositories/booking/booking.repository';
-import { BookingModel } from 'src/repositories/booking/booking.schema';
-import { GuestRepository } from 'src/repositories/guest/guest.repository';
-import { GuestModel } from 'src/repositories/guest/guest.schema';
 import { HotelRepository } from 'src/repositories/hotel/hotel.repository';
 import { HotelModel } from 'src/repositories/hotel/hotel.schema';
 import { RoomRepository } from 'src/repositories/room/room.repository';
@@ -21,10 +17,6 @@ async function bootstrap() {
   const userRepository = app.get(UserRepository);
   const userModel: Model<UserModel> = (userRepository as any).userModel;
   await userModel.create(seed.user.createProps());
-
-  const guestRepository = app.get(GuestRepository);
-  const guestModel: Model<GuestModel> = (guestRepository as any).guestModel;
-  await guestModel.create(seed.guest.createProps());
 
   const hotelRepository = app.get(HotelRepository);
   const hotelModel: Model<HotelModel> = (hotelRepository as any).hotelModel;

@@ -3,16 +3,16 @@ import { Type } from 'class-transformer';
 import { randomUUID } from 'crypto';
 import { Types } from 'mongoose';
 import { Booking, BookingStatus } from 'src/entities/booking.entity';
-import { GuestModel } from '../guest/guest.schema';
+import { UserModel } from '../user/user.schema';
 
 @Schema({ collection: 'bookings' })
-export class BookingModel implements Omit<Booking, 'id' | 'guest' | 'room'> {
+export class BookingModel implements Omit<Booking, 'id' | 'user' | 'room'> {
   @Prop({ required: true, default: randomUUID })
   _id: string;
 
-  @Prop({ required: true, type: Types.ObjectId, ref: GuestModel.name })
-  @Type(() => GuestModel)
-  guest: GuestModel;
+  @Prop({ required: true, type: Types.ObjectId, ref: UserModel.name })
+  @Type(() => UserModel)
+  user: UserModel;
 
   @Prop({ required: true, enum: BookingStatus, default: BookingStatus.Created })
   status: BookingStatus;
